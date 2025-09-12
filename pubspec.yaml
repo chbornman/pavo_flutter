@@ -73,6 +73,9 @@ dependencies:
   # Environment
   flutter_dotenv: ^5.1.0
   photo_view: ^0.15.0
+  
+  # PDF Viewer
+  syncfusion_flutter_pdfviewer: ^31.1.19
 
 dev_dependencies:
   flutter_test:

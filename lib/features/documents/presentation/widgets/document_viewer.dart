@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../domain/entities/document.dart';
 
 class DocumentViewer extends StatefulWidget {
@@ -303,11 +304,14 @@ class _DocumentViewerState extends State<DocumentViewer> {
                     child: Row(
                       children: [
                         if (document.correspondent != null)
-                          Text(
-                            'From: ${document.correspondent}',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
+                          Flexible(
+                            child: Text(
+                              'From: ${document.correspondent}',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         if (document.correspondent != null && document.created != null)
@@ -337,48 +341,25 @@ class _DocumentViewerState extends State<DocumentViewer> {
   }
 
   Widget _buildPdfViewer(String previewUrl) {
-    // For now, we'll display a message and download button for PDFs
-    // In a production app, you'd use a PDF viewer package like syncfusion_flutter_pdfviewer
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.picture_as_pdf,
-            size: 96,
-            color: Colors.red.shade600,
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'PDF Preview',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
+    return SfPdfViewer.network(
+      previewUrl,
+      headers: widget.headers,
+      canShowScrollHead: false,
+      canShowScrollStatus: true,
+      enableDoubleTapZooming: true,
+      enableTextSelection: false,
+      onDocumentLoadFailed: (details) {
+        // Show error fallback UI
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load PDF: ${details.description}'),
+            action: SnackBarAction(
+              label: 'Download',
+              onPressed: _handleDownload,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Tap download to view the full PDF',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: _handleDownload,
-            icon: const Icon(Icons.download),
-            label: const Text('Download PDF'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
