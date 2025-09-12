@@ -28,7 +28,7 @@ class DocumentGridItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -41,7 +41,7 @@ class DocumentGridItem extends StatelessWidget {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(12),
                   ),
@@ -82,7 +82,7 @@ class DocumentGridItem extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
+                            color: Colors.black.withValues(alpha: 0.7),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -119,7 +119,7 @@ class DocumentGridItem extends StatelessWidget {
                     Text(
                       document.correspondent!,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -130,7 +130,7 @@ class DocumentGridItem extends StatelessWidget {
                     Text(
                       document.displayDate,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                     ),
                   ],
@@ -154,13 +154,13 @@ class DocumentGridItem extends StatelessWidget {
       return Icon(
         Icons.image,
         size: 48,
-        color: theme.colorScheme.primary.withOpacity(0.6),
+        color: theme.colorScheme.primary.withValues(alpha: 0.6),
       );
     } else {
       return Icon(
         Icons.description,
         size: 48,
-        color: theme.colorScheme.onSurface.withOpacity(0.4),
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
       );
     }
   }

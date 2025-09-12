@@ -45,13 +45,13 @@ class MovieDetailScreen extends ConsumerWidget {
                     fit: BoxFit.cover,
                     fadeInDuration: const Duration(milliseconds: 300),
                     placeholder: (context, url) => Container(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       child: const Center(
                         child: CircularProgressIndicator(),
                       ),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       child: const Center(
                         child: Icon(
                           Icons.movie,
@@ -67,7 +67,7 @@ class MovieDetailScreen extends ConsumerWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(alpha: 0.7),
                         ],
                       ),
                     ),

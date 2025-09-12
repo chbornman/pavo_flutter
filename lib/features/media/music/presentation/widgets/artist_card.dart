@@ -17,42 +17,23 @@ class ArtistCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppConstants.paddingSmall),
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.paddingSmall),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Artist image (circular)
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(AppConstants.padding),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: ClipOval(
-                    child: artist.imageUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: artist.imageUrl!,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              child: Icon(
-                                Icons.person_outline,
-                                size: 48,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              child: Icon(
-                                Icons.person_outline,
-                                size: 48,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          )
-                        : Container(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: ClipOval(
+                  child: artist.imageUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: artist.imageUrl!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
                             color: theme.colorScheme.surfaceContainerHighest,
                             child: Icon(
                               Icons.person_outline,
@@ -60,38 +41,55 @@ class ArtistCard extends StatelessWidget {
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
-                  ),
+                          errorWidget: (context, url, error) => Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Icons.person_outline,
+                              size: 48,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        )
+                      : Container(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          child: Icon(
+                            Icons.person_outline,
+                            size: 48,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
                 ),
               ),
             ),
             
+            const SizedBox(height: AppConstants.paddingSmall),
+            
             // Artist info
-            Padding(
-              padding: const EdgeInsets.all(AppConstants.paddingSmall),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  artist.name,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+                if (artist.albumCount != null || artist.songCount != null) ...[
+                  const SizedBox(height: 2),
                   Text(
-                    artist.name,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
+                    _getSubtitle(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                   ),
-                  if (artist.albumCount != null || artist.songCount != null)
-                    Text(
-                      _getSubtitle(),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
                 ],
-              ),
+              ],
             ),
           ],
         ),

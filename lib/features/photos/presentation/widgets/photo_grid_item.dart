@@ -42,11 +42,11 @@ class PhotoGridItem extends StatelessWidget {
                   'Cache-Control': 'max-age=3600',
                 },
                 placeholder: (context, url) {
-                  print('DEBUG: Loading thumbnail for URL: $url');
+                  // Debug: Loading thumbnail (removed print for production)
                   return _buildPlaceholder();
                 },
                 errorWidget: (context, url, error) {
-                  print('ERROR: Failed to load thumbnail: $url - Error: $error');
+                  // Error: Failed to load thumbnail (removed print for production)
                   return _buildErrorWidget(error);
                 },
                 fadeInDuration: const Duration(milliseconds: 200),
@@ -113,7 +113,7 @@ class PhotoGridItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
+          color: Colors.black.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
@@ -162,7 +162,7 @@ class PhotoGridItem extends StatelessWidget {
           color: Colors.blue,
           width: 3,
         ),
-        color: Colors.blue.withOpacity(0.2),
+        color: Colors.blue.withValues(alpha: 0.2),
       ),
       child: const Center(
         child: Icon(

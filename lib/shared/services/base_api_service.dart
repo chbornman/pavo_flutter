@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:pavo_flutter/core/constants/app_constants.dart';
-import 'package:pavo_flutter/core/logging/app_logger.dart';
 import 'package:pavo_flutter/core/logging/log_mixin.dart';
 
 abstract class BaseApiService with LogMixin {

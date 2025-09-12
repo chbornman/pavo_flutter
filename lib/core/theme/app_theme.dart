@@ -45,11 +45,11 @@ class AppTheme {
     // Card theme
     cardTheme: CardThemeData(
       elevation: 0,
-      color: AppColors.lightBgLight.withOpacity(0.7),
+      color: AppColors.lightBgLight.withValues(alpha: 0.7),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radiusMedium),
         side: BorderSide(
-          color: AppColors.lightBorder.withOpacity(0.3),
+          color: AppColors.lightBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -59,7 +59,7 @@ class AppTheme {
     navigationBarTheme: NavigationBarThemeData(
       elevation: 0,
       height: 80,
-      backgroundColor: AppColors.lightBgLight.withOpacity(0.95),
+      backgroundColor: AppColors.lightBgLight.withValues(alpha: 0.95),
       indicatorColor: AppColors.lightPrimary,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       iconTheme: WidgetStateProperty.resolveWith((states) {
@@ -83,20 +83,20 @@ class AppTheme {
     
     // Chip theme
     chipTheme: ChipThemeData(
-      backgroundColor: AppColors.lightBgLight.withOpacity(0.5),
-      selectedColor: AppColors.lightPrimary.withOpacity(0.2),
+      backgroundColor: AppColors.lightBgLight.withValues(alpha: 0.5),
+      selectedColor: AppColors.lightPrimary.withValues(alpha: 0.2),
       labelStyle: const TextStyle(color: AppColors.lightText),
       checkmarkColor: AppColors.lightPrimary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radiusSmall),
-        side: BorderSide(color: AppColors.lightBorder.withOpacity(0.3)),
+        side: BorderSide(color: AppColors.lightBorder.withValues(alpha: 0.3)),
       ),
     ),
     
     // Input decoration theme
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.lightBgLight.withOpacity(0.5),
+      fillColor: AppColors.lightBgLight.withValues(alpha: 0.5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusSmall),
@@ -104,7 +104,7 @@ class AppTheme {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusSmall),
-        borderSide: BorderSide(color: AppColors.lightBorder.withOpacity(0.5)),
+        borderSide: BorderSide(color: AppColors.lightBorder.withValues(alpha: 0.5)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusSmall),
@@ -149,11 +149,11 @@ class AppTheme {
     // Card theme
     cardTheme: CardThemeData(
       elevation: 0,
-      color: AppColors.darkBgLight.withOpacity(0.3),
+      color: AppColors.darkBgLight.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radiusMedium),
         side: BorderSide(
-          color: AppColors.darkBorder.withOpacity(0.3),
+          color: AppColors.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -163,8 +163,8 @@ class AppTheme {
     navigationBarTheme: NavigationBarThemeData(
       elevation: 0,
       height: 80,
-      backgroundColor: AppColors.darkBgLight.withOpacity(0.95),
-      indicatorColor: AppColors.darkPrimary.withOpacity(0.2),
+      backgroundColor: AppColors.darkBgLight.withValues(alpha: 0.95),
+      indicatorColor: AppColors.darkPrimary.withValues(alpha: 0.2),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
@@ -187,20 +187,20 @@ class AppTheme {
     
     // Chip theme
     chipTheme: ChipThemeData(
-      backgroundColor: AppColors.darkBgLight.withOpacity(0.3),
-      selectedColor: AppColors.darkPrimary.withOpacity(0.2),
+      backgroundColor: AppColors.darkBgLight.withValues(alpha: 0.3),
+      selectedColor: AppColors.darkPrimary.withValues(alpha: 0.2),
       labelStyle: const TextStyle(color: AppColors.darkText),
       checkmarkColor: AppColors.darkPrimary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radiusSmall),
-        side: BorderSide(color: AppColors.darkBorder.withOpacity(0.3)),
+        side: BorderSide(color: AppColors.darkBorder.withValues(alpha: 0.3)),
       ),
     ),
     
     // Input decoration theme
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.darkBgLight.withOpacity(0.3),
+      fillColor: AppColors.darkBgLight.withValues(alpha: 0.3),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusSmall),
@@ -208,7 +208,7 @@ class AppTheme {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusSmall),
-        borderSide: BorderSide(color: AppColors.darkBorder.withOpacity(0.5)),
+        borderSide: BorderSide(color: AppColors.darkBorder.withValues(alpha: 0.5)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusSmall),

@@ -174,7 +174,7 @@ class JellyfinService extends BaseApiService {
 
   String getAudioStreamUrl(String itemId) {
     // Direct audio streaming URL with transcoding parameters
-    return '${EnvConfig.jellyfinUrl}/Audio/$itemId/universal?api_key=${EnvConfig.jellyfinApiKey}'
+    return '${EnvConfig.jellyfinUrl}/Audio/$itemId/stream?api_key=${EnvConfig.jellyfinApiKey}'
         '&container=mp3&audioCodec=mp3&audioBitRate=320000&maxStreamingBitrate=140000000';
   }
 }

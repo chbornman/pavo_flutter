@@ -5,7 +5,6 @@ import '../../../../../core/constants/app_constants.dart';
 import '../providers/music_library_provider.dart';
 import '../providers/music_player_provider.dart';
 import '../widgets/album_card.dart';
-import '../widgets/track_tile.dart';
 import '../../domain/entities/album.dart';
 
 class ArtistDetailScreen extends ConsumerStatefulWidget {

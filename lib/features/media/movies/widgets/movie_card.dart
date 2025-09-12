@@ -32,7 +32,7 @@ class MovieCard extends StatelessWidget {
           fadeInDuration: const Duration(milliseconds: 200),
           placeholderFadeInDuration: const Duration(milliseconds: 100),
           placeholder: (context, url) => Container(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             child: const Center(
               child: SizedBox(
                 width: 24,
@@ -42,7 +42,7 @@ class MovieCard extends StatelessWidget {
             ),
           ),
           errorWidget: (context, url, error) => Container(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             child: Icon(
               Icons.movie,
               size: 32,

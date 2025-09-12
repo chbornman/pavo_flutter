@@ -27,12 +27,12 @@ class AudiobookMiniPlayer extends ConsumerWidget {
         color: theme.colorScheme.surface,
         border: Border(
           top: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.3),
+            color: theme.colorScheme.outline.withValues(alpha: 0.3),
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: theme.shadowColor.withOpacity(0.1),
+            color: theme.shadowColor.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -43,7 +43,7 @@ class AudiobookMiniPlayer extends ConsumerWidget {
           // Progress bar
           LinearProgressIndicator(
             value: playbackState.progress,
-            backgroundColor: theme.colorScheme.surfaceVariant,
+            backgroundColor: theme.colorScheme.surfaceContainerHighest,
             valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
             minHeight: 2,
           ),
@@ -68,7 +68,7 @@ class AudiobookMiniPlayer extends ConsumerWidget {
                       placeholder: (context, url) => Container(
                         width: 48,
                         height: 48,
-                        color: theme.colorScheme.surfaceVariant,
+                        color: theme.colorScheme.surfaceContainerHighest,
                         child: Icon(
                           Icons.headphones_outlined,
                           size: 24,
@@ -78,7 +78,7 @@ class AudiobookMiniPlayer extends ConsumerWidget {
                       errorWidget: (context, url, error) => Container(
                         width: 48,
                         height: 48,
-                        color: theme.colorScheme.surfaceVariant,
+                        color: theme.colorScheme.surfaceContainerHighest,
                         child: Icon(
                           Icons.headphones_outlined,
                           size: 24,

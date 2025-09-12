@@ -84,7 +84,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                     child: Text(
                       '${notifier.totalCount} documents',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ),
@@ -186,20 +186,20 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                         Icon(
                           Icons.folder_open,
                           size: 96,
-                          color: theme.colorScheme.onSurface.withOpacity(0.3),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No documents found',
                           style: theme.textTheme.titleLarge?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Documents will appear here once added to Paperless',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.4),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
                         ),
                       ],
@@ -240,7 +240,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                     Text(
                       error.toString(),
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                       textAlign: TextAlign.center,
                     ),

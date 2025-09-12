@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../../core/constants/app_constants.dart';
 import '../../domain/entities/audiobook_entity.dart';
-import '../../domain/entities/chapter_entity.dart';
 import '../providers/audiobooks_provider.dart';
 import '../providers/audiobook_player_provider.dart';
 
@@ -114,8 +113,8 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.black.withOpacity(0.3),
-            Colors.black.withOpacity(0.7),
+            Colors.black.withValues(alpha: 0.3),
+            Colors.black.withValues(alpha: 0.7),
           ],
         ),
       ),
@@ -480,7 +479,7 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
           if (playbackState.currentAudiobook != null) ...[
             LinearProgressIndicator(
               value: playbackState.progress,
-              backgroundColor: theme.colorScheme.surfaceVariant,
+              backgroundColor: theme.colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
             ),
             const SizedBox(height: AppConstants.paddingSmall),

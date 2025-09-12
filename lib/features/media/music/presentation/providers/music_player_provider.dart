@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:audio_session/audio_session.dart';
@@ -99,7 +99,7 @@ class MusicPlaybackState {
 @riverpod
 class MusicPlayer extends _$MusicPlayer with LogMixin {
   late final AudioPlayer _audioPlayer;
-  final _random = Random();
+  final _random = math.Random();
   
   @override
   MusicPlaybackState build() {
@@ -253,7 +253,7 @@ class MusicPlayer extends _$MusicPlayer with LogMixin {
         await stop();
         return;
       }
-      newIndex = min(index, newQueue.length - 1);
+      newIndex = math.min(index, newQueue.length - 1);
       await _loadTrack(newQueue[newIndex]);
     }
     

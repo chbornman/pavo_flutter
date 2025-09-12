@@ -1,6 +1,4 @@
-import 'package:clerk_flutter/clerk_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pavo_flutter/core/logging/app_logger.dart';
 import 'package:pavo_flutter/core/logging/log_mixin.dart';
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {

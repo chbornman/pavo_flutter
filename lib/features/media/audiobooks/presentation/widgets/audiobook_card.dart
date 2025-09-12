@@ -38,7 +38,7 @@ class AudiobookCard extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -86,7 +86,7 @@ class AudiobookCard extends ConsumerWidget {
                       ),
                       child: LinearProgressIndicator(
                         value: audiobook.progress,
-                        backgroundColor: Colors.black.withOpacity(0.3),
+                        backgroundColor: Colors.black.withValues(alpha: 0.3),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           theme.colorScheme.primary,
                         ),
@@ -136,7 +136,7 @@ class AudiobookCard extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(

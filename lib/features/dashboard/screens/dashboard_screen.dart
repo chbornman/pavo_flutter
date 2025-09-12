@@ -21,9 +21,10 @@ class DashboardScreen extends ConsumerWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Show mini players above navigation
-          const AudiobookMiniPlayer(),
+          // Show mini players above navigation - only one at a time
+          // Music player takes priority if both are playing
           const MusicMiniPlayer(),
+          const AudiobookMiniPlayer(),
           NavigationBar(
         selectedIndex: _getSelectedIndex(location),
         onDestinationSelected: (index) => _onItemTapped(context, index),

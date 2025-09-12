@@ -135,8 +135,7 @@ class ImmichPhotoModel {
         ? '$baseUrl/api/assets/$id/video/playback'
         : '$baseUrl/api/assets/$id/original';
         
-    // Debug: Log the generated URLs
-    print('DEBUG: Generated thumbnail URL for asset $id: $thumbnailUrl');
+    // Debug: Log the generated URLs (removed print for production)
     
     // Parse duration for videos
     Duration? videoDuration;

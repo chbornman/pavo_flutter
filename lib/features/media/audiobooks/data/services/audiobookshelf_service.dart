@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../../../../../core/api/api_client.dart';
 import '../../../../../core/config/env_config.dart';
 import '../../../../../core/logging/log_mixin.dart';

@@ -159,7 +159,7 @@ class _PhotoLightboxState extends State<PhotoLightbox> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.7),
                     Colors.transparent,
                   ],
                 ),
@@ -194,7 +194,7 @@ class _PhotoLightboxState extends State<PhotoLightbox> {
                             Text(
                               '${_currentIndex + 1} / ${widget.photos.length}',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 fontSize: 14,
                               ),
                             ),
@@ -243,7 +243,7 @@ class _PhotoLightboxState extends State<PhotoLightbox> {
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.7),
                     Colors.transparent,
                   ],
                 ),
@@ -259,7 +259,7 @@ class _PhotoLightboxState extends State<PhotoLightbox> {
                         Text(
                           _formatDate(currentPhoto.createdAt!),
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14,
                           ),
                         ),
@@ -269,7 +269,7 @@ class _PhotoLightboxState extends State<PhotoLightbox> {
                         Text(
                           '${currentPhoto.formattedFileSize} • ${currentPhoto.width ?? 0} × ${currentPhoto.height ?? 0}${currentPhoto.isVideo && currentPhoto.duration != null ? ' • ${currentPhoto.formattedDuration}' : ''}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 12,
                           ),
                         ),

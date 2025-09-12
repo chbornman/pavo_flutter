@@ -9,6 +9,9 @@ class AppConstants {
   static const int gridCrossAxisCountTablet = 5;
   
   static const double borderRadius = 12.0;
+  static const double radiusSmall = 8.0;
+  static const double radiusMedium = 12.0;
+  static const double radiusLarge = 16.0;
   static const double padding = 16.0;
   static const double paddingSmall = 8.0;
   static const double paddingLarge = 24.0;

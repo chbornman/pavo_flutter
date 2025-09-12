@@ -104,13 +104,13 @@ class _DocumentViewerState extends State<DocumentViewer> {
                       Icon(
                         Icons.error_outline,
                         size: 64,
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'Preview not available',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 16,
                         ),
                       ),
@@ -143,13 +143,13 @@ class _DocumentViewerState extends State<DocumentViewer> {
                               Icon(
                                 Icons.error_outline,
                                 size: 64,
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 'Failed to load image',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
+                                  color: Colors.white.withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -172,7 +172,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.7),
                     Colors.transparent,
                   ],
                 ),
@@ -191,7 +191,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                               Text(
                                 'Document ${_currentIndex + 1} / ${widget.documents.length}',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
+                                  color: Colors.white.withValues(alpha: 0.7),
                                   fontSize: 12,
                                 ),
                               ),
@@ -209,7 +209,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                               Text(
                                 '${document.pageCount} pages',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
+                                  color: Colors.white.withValues(alpha: 0.7),
                                   fontSize: 12,
                                 ),
                               ),
@@ -293,7 +293,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                       Colors.transparent,
                     ],
                   ),
@@ -308,7 +308,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                             child: Text(
                               'From: ${document.correspondent}',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 fontSize: 12,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -318,14 +318,14 @@ class _DocumentViewerState extends State<DocumentViewer> {
                           Text(
                             ' • ',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.white.withValues(alpha: 0.5),
                             ),
                           ),
                         if (document.created != null)
                           Text(
                             document.displayDate,
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 12,
                             ),
                           ),
