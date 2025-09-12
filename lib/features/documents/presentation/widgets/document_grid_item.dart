@@ -57,7 +57,7 @@ class DocumentGridItem extends StatelessWidget {
                         child: CachedNetworkImage(
                           imageUrl: thumbnailUrl!,
                           httpHeaders: headers,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           placeholder: (context, url) => Center(
                             child: _buildDocumentIcon(theme),
                           ),

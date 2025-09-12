@@ -65,9 +65,6 @@ class DocumentGrid extends StatelessWidget {
   }
 
   int _getCrossAxisCount(double screenWidth) {
-    if (screenWidth < 600) return 2; // Phone
-    if (screenWidth < 900) return 3; // Tablet portrait
-    if (screenWidth < 1200) return 4; // Tablet landscape
-    return 5; // Desktop
+    return 3; // Fixed 3 columns
   }
 }
