@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pavo_flutter/features/auth/providers/auth_provider.dart';
@@ -9,9 +8,12 @@ import 'package:pavo_flutter/features/photos/screens/photos_screen.dart';
 import 'package:pavo_flutter/features/videos/screens/videos_screen.dart';
 import 'package:pavo_flutter/features/documents/screens/documents_screen.dart';
 import 'package:pavo_flutter/features/media/movies/screens/movies_screen.dart';
+import 'package:pavo_flutter/features/media/movies/screens/movie_detail_screen.dart';
+import 'package:pavo_flutter/features/media/movies/screens/movie_player_screen.dart';
 import 'package:pavo_flutter/features/media/tv_shows/screens/tv_shows_screen.dart';
 import 'package:pavo_flutter/features/media/music/screens/music_screen.dart';
 import 'package:pavo_flutter/features/media/audiobooks/screens/audiobooks_screen.dart';
+import 'package:pavo_flutter/features/media/audiobooks/presentation/screens/audiobook_detail_screen.dart';
 import 'package:pavo_flutter/features/settings/screens/settings_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -93,6 +95,27 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/movies/detail/:movieId',
+        builder: (context, state) {
+          final movieId = state.pathParameters['movieId']!;
+          return MovieDetailScreen(movieId: movieId);
+        },
+      ),
+      GoRoute(
+        path: '/movies/player/:movieId',
+        builder: (context, state) {
+          final movieId = state.pathParameters['movieId']!;
+          return MoviePlayerScreen(movieId: movieId);
+        },
+      ),
+      GoRoute(
+        path: '/audiobooks/detail/:audiobookId',
+        builder: (context, state) {
+          final audiobookId = state.pathParameters['audiobookId']!;
+          return AudiobookDetailScreen(audiobookId: audiobookId);
+        },
       ),
       GoRoute(
         path: '/settings',

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../media/audiobooks/presentation/widgets/audiobook_mini_player.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   final Widget child;
 
   const DashboardScreen({
@@ -10,12 +12,16 @@ class DashboardScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).matchedLocation;
     
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AudiobookMiniPlayer(),
+          NavigationBar(
         selectedIndex: _getSelectedIndex(location),
         onDestinationSelected: (index) => _onItemTapped(context, index),
         destinations: const [
@@ -53,6 +59,8 @@ class DashboardScreen extends StatelessWidget {
             icon: Icon(Icons.headphones_outlined),
             selectedIcon: Icon(Icons.headphones),
             label: 'Audiobooks',
+          ),
+        ],
           ),
         ],
       ),
