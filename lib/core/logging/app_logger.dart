@@ -65,10 +65,7 @@ class AppLogger {
   }
 
   LogOutput _createOutput() {
-    return MultiOutput([
-      ConsoleOutput(),
-      if (!kReleaseMode) _FileOutput(),
-    ]);
+    return ConsoleOutput();
   }
 
   // Logging methods with structured data support
@@ -217,17 +214,6 @@ class _StructuredPrinter extends LogPrinter {
   }
 }
 
-/// File output for development logging
-class _FileOutput extends LogOutput {
-  // This is a placeholder - in a real app, you'd write to a file
-  // For now, it just prints with a FILE: prefix
-  @override
-  void output(OutputEvent event) {
-    for (var line in event.lines) {
-      debugPrint('FILE: $line');
-    }
-  }
-}
 
 /// Clean pretty printer that only shows stack traces for errors
 class _CleanPrettyPrinter extends LogPrinter {

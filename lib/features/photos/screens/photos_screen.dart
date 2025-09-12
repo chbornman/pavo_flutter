@@ -45,6 +45,9 @@ class _PhotosScreenState extends ConsumerState<PhotosScreen> {
     final photosState = ref.watch(photosNotifierProvider);
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Photos'),
+      ),
       body: Column(
         children: [
           // Filter bar
