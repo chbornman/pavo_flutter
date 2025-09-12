@@ -6,7 +6,7 @@ part of 'photos_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$photosNotifierHash() => r'74c04553679dad075286f5df7b055b61a8856c16';
+String _$photosNotifierHash() => r'517b4269a06f8a72d5127c2fcdc52220e86334ce';
 
 /// Main photos notifier using Riverpod code generation
 /// This follows Flutter's reactive state management patterns

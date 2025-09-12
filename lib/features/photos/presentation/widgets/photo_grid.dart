@@ -5,7 +5,7 @@ import 'photo_grid_item.dart';
 
 /// Responsive photo grid following Material Design
 /// Flutter best practice: Use SliverGrid for performance with large lists
-class PhotoGrid extends ConsumerWidget {
+class PhotoGrid extends ConsumerStatefulWidget {
   final List<PhotoEntity> photos;
   final ScrollController? scrollController;
   final bool isLoading;
@@ -24,13 +24,23 @@ class PhotoGrid extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PhotoGrid> createState() => _PhotoGridState();
+}
+
+class _PhotoGridState extends ConsumerState<PhotoGrid> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => false; // Don't keep alive to save memory
+  
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
     // Calculate grid columns based on screen width
     final screenWidth = MediaQuery.of(context).size.width;
     final crossAxisCount = _calculateCrossAxisCount(screenWidth);
     
     return CustomScrollView(
-      controller: scrollController,
+      controller: widget.scrollController,
+      cacheExtent: 500, // Reduce cache extent to save memory
       slivers: [
         // Photo grid
         SliverPadding(
@@ -44,25 +54,38 @@ class PhotoGrid extends ConsumerWidget {
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                // Check if we need to load more
-                if (index == photos.length - 10 && onLoadMore != null) {
-                  onLoadMore!();
+                // Aggressive memory management: only keep visible items
+                final itemsAbove = index - 10;
+                final itemsBelow = index + 10;
+                final isNearVisible = itemsAbove <= 0 || itemsBelow >= widget.photos.length;
+                // Check if we need to load more when we're 10 items from the end
+                // Only trigger if we're not already loading
+                if (index == widget.photos.length - 10 && 
+                    widget.onLoadMore != null && 
+                    !widget.isLoading) {
+                  // Schedule load more after current frame
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    widget.onLoadMore!();
+                  });
                 }
 
-                final photo = photos[index];
+                final photo = widget.photos[index];
                 return PhotoGridItem(
+                  key: ValueKey(photo.id), // Add key for better widget recycling
                   photo: photo,
-                  onTap: () => onPhotoTap?.call(photo),
-                  onLongPress: () => onPhotoLongPress?.call(photo),
+                  onTap: () => widget.onPhotoTap?.call(photo),
+                  onLongPress: () => widget.onPhotoLongPress?.call(photo),
                 );
               },
-              childCount: photos.length,
+              childCount: widget.photos.length,
+              addAutomaticKeepAlives: false, // Don't keep items alive
+              addRepaintBoundaries: false, // Reduce memory overhead
             ),
           ),
         ),
         
         // Loading indicator at bottom
-        if (isLoading)
+        if (widget.isLoading)
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(16),

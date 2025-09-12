@@ -60,10 +60,11 @@ class ImmichService {
         data: requestBody,
       );
 
-      // Parse response
+      // Parse response - Immich returns assets directly with nextPage indicator
       final assets = response['assets'] as Map<String, dynamic>? ?? {};
       final items = assets['items'] as List? ?? [];
-      final totalCount = assets['count'] as int? ?? 0;
+      final totalCount = assets['count'] as int? ?? items.length;
+      final nextPage = assets['nextPage'] as String?;
       
       // Convert to domain entities
       final photos = items
@@ -72,7 +73,8 @@ class ImmichService {
           .toList();
 
       // Calculate if there are more pages
-      final hasMore = (params.page * params.limit) < totalCount;
+      // If we got a full page of results OR nextPage is provided, assume there's more
+      final hasMore = nextPage != null || photos.length >= params.limit;
 
       _logger.info('Fetched ${photos.length} assets, total: $totalCount, hasMore: $hasMore');
 

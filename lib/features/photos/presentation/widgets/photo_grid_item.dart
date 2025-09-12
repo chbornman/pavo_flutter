@@ -42,7 +42,10 @@ class PhotoGridItem extends StatelessWidget {
                 placeholder: (context, url) => _buildPlaceholder(),
                 errorWidget: (context, url, error) => _buildErrorWidget(),
                 fadeInDuration: const Duration(milliseconds: 200),
-                memCacheWidth: 400, // Optimize memory usage
+                memCacheWidth: 300, // Optimize memory usage
+                memCacheHeight: 300,
+                maxWidthDiskCache: 600,
+                maxHeightDiskCache: 600,
               ),
             ),
           ),

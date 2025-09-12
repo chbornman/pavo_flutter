@@ -129,9 +129,9 @@ class ImmichPhotoModel {
   /// This is the adapter pattern - converting external data to our domain
   PhotoEntity toEntity({required String baseUrl, String? apiKey}) {
     // Build URLs for accessing the asset
-    // Immich v1.95+ uses /api/assets/ (with 's') instead of /api/asset/
-    final thumbnailUrl = '$baseUrl/api/assets/$id/thumbnail?size=preview';
-    final originalUrl = '$baseUrl/api/assets/$id/original';
+    // Use the standard Immich API format for thumbnails
+    final thumbnailUrl = '$baseUrl/api/asset/thumbnail/$id';
+    final originalUrl = '$baseUrl/api/asset/file/$id';
     
     // Parse duration for videos
     Duration? videoDuration;

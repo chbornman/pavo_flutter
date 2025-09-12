@@ -79,3 +79,4 @@ This project uses build_runner for generating Riverpod providers. Run code gener
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
+- no placeholder values! everything should be in the .env

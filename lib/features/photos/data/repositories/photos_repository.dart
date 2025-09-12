@@ -15,7 +15,8 @@ class PhotosRepository {
 
   // Cache keys
   static const String _cacheKeyPrefix = 'photos_';
-  static const Duration _cacheTTL = Duration(minutes: 5);
+  static const Duration _cacheTTL = Duration(minutes: 3); // Reduced cache TTL
+  static const int _maxCachedPages = 5; // Limit cached pages to prevent memory issues
 
   PhotosRepository({
     ImmichService? immichService,
@@ -55,8 +56,8 @@ class PhotosRepository {
       // Cache the successful response
       await _cacheResponse(cacheKey, response);
       
-      // Prefetch next page in background (like Pavo web)
-      if (response.hasMore) {
+      // Prefetch next page in background only if we have less than max cached pages
+      if (response.hasMore && params.page < _maxCachedPages) {
         _prefetchNextPage(params, type);
       }
 

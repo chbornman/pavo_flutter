@@ -28,9 +28,14 @@ class _PhotosScreenState extends ConsumerState<PhotosScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      // Load more when near bottom
+    // Only trigger load more if we're at 80% of scroll position
+    // and not already loading
+    final state = ref.read(photosNotifierProvider);
+    if (!state.isLoadingMore && 
+        !state.isLoading && 
+        state.hasMore &&
+        _scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
       ref.read(photosNotifierProvider.notifier).loadMore();
     }
   }
@@ -71,78 +76,82 @@ class _PhotosScreenState extends ConsumerState<PhotosScreen> {
           ),
         ),
       ),
-      child: Row(
-        children: [
-          // Filter chips
-          FilterChip(
-            label: const Text('All'),
-            selected: state.activeFilter == null,
-            onSelected: (_) {
-              ref.read(photosNotifierProvider.notifier).setFilter(null);
-            },
-          ),
-          const SizedBox(width: 8),
-          FilterChip(
-            label: const Text('Photos'),
-            selected: state.activeFilter == PhotoType.image,
-            onSelected: (_) {
-              ref.read(photosNotifierProvider.notifier)
-                  .setFilter(PhotoType.image);
-            },
-          ),
-          const SizedBox(width: 8),
-          FilterChip(
-            label: const Text('Videos'),
-            selected: state.activeFilter == PhotoType.video,
-            onSelected: (_) {
-              ref.read(photosNotifierProvider.notifier)
-                  .setFilter(PhotoType.video);
-            },
-          ),
-          const Spacer(),
-          // Sort button
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.sort),
-            tooltip: 'Sort by',
-            onSelected: (value) {
-              ref.read(photosNotifierProvider.notifier).setSortBy(value);
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'date_desc',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.arrow_downward,
-                      size: 18,
-                      color: state.sortBy == 'date_desc' 
-                        ? Theme.of(context).colorScheme.primary 
-                        : null,
-                    ),
-                    const SizedBox(width: 8),
-                    const Text('Newest first'),
-                  ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Filter chips
+            FilterChip(
+              label: const Text('All'),
+              selected: state.activeFilter == null,
+              onSelected: (_) {
+                ref.read(photosNotifierProvider.notifier).setFilter(null);
+              },
+            ),
+            const SizedBox(width: 8),
+            FilterChip(
+              label: const Text('Photos'),
+              selected: state.activeFilter == PhotoType.image,
+              onSelected: (_) {
+                ref.read(photosNotifierProvider.notifier)
+                    .setFilter(PhotoType.image);
+              },
+            ),
+            const SizedBox(width: 8),
+            FilterChip(
+              label: const Text('Videos'),
+              selected: state.activeFilter == PhotoType.video,
+              onSelected: (_) {
+                ref.read(photosNotifierProvider.notifier)
+                    .setFilter(PhotoType.video);
+              },
+            ),
+            const SizedBox(width: 16),
+            // Sort button
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.sort),
+              tooltip: 'Sort by',
+              onSelected: (value) {
+                ref.read(photosNotifierProvider.notifier).setSortBy(value);
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'date_desc',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.arrow_downward,
+                        size: 18,
+                        color: state.sortBy == 'date_desc' 
+                          ? Theme.of(context).colorScheme.primary 
+                          : null,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('Newest first'),
+                    ],
+                  ),
                 ),
-              ),
-              PopupMenuItem(
-                value: 'date_asc',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.arrow_upward,
-                      size: 18,
-                      color: state.sortBy == 'date_asc' 
-                        ? Theme.of(context).colorScheme.primary 
-                        : null,
-                    ),
-                    const SizedBox(width: 8),
-                    const Text('Oldest first'),
-                  ],
+                PopupMenuItem(
+                  value: 'date_asc',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.arrow_upward,
+                        size: 18,
+                        color: state.sortBy == 'date_asc' 
+                          ? Theme.of(context).colorScheme.primary 
+                          : null,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('Oldest first'),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

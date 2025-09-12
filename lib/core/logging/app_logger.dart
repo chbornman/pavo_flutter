@@ -237,14 +237,20 @@ class _CleanPrettyPrinter extends LogPrinter {
 
   @override
   List<String> log(LogEvent event) {
-    final emoji = _getEmoji(event.level);
     final color = _getColor(event.level);
-    final time = event.time.toIso8601String().substring(11, 23); // HH:mm:ss.SSS
+    final level = _getLevelString(event.level);
+    final time = event.time.toIso8601String().substring(11, 19); // HH:mm:ss
     
     final buffer = <String>[];
     
-    // Top border
-    buffer.add('$color┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────');
+    // Main log line: [TIME] LEVEL: message
+    final message = event.message.toString();
+    buffer.add('$color[$time] $level: $message');
+    
+    // Error if present
+    if (event.error != null) {
+      buffer.add('$color  Error: ${event.error}');
+    }
     
     // Only show stack trace for errors/fatal or if verbose mode is on
     final showStackTrace = verbose || 
@@ -254,51 +260,32 @@ class _CleanPrettyPrinter extends LogPrinter {
     
     if (showStackTrace && event.stackTrace != null) {
       final stackLines = event.stackTrace.toString().split('\n');
-      // Show first 2-5 lines of stack trace
-      final linesToShow = event.level == Level.error || event.level == Level.fatal ? 5 : 2;
+      // Show first 2-3 lines of stack trace
+      final linesToShow = event.level == Level.error || event.level == Level.fatal ? 3 : 2;
       for (int i = 0; i < stackLines.length && i < linesToShow; i++) {
-        buffer.add('$color│ ${stackLines[i]}');
+        buffer.add('$color  ${stackLines[i]}');
       }
-      buffer.add('$color├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄');
     }
-    
-    // Time
-    buffer.add('$color│ $time');
-    buffer.add('$color├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄');
-    
-    // Message with emoji
-    final message = event.message.toString();
-    for (final line in message.split('\n')) {
-      buffer.add('$color│ $emoji $line');
-    }
-    
-    // Error if present
-    if (event.error != null) {
-      buffer.add('$color│ $emoji Error: ${event.error}');
-    }
-    
-    // Bottom border
-    buffer.add('$color└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────');
     
     return buffer;
   }
   
-  String _getEmoji(Level level) {
+  String _getLevelString(Level level) {
     switch (level) {
       case Level.trace:
-        return '🔍';
+        return 'TRACE';
       case Level.debug:
-        return '🐛';
+        return 'DEBUG';
       case Level.info:
-        return '💡';
+        return 'INFO';
       case Level.warning:
-        return '⚠️';
+        return 'WARN';
       case Level.error:
-        return '❌';
+        return 'ERROR';
       case Level.fatal:
-        return '👾';
+        return 'FATAL';
       default:
-        return '📝';
+        return 'INFO';
     }
   }
   

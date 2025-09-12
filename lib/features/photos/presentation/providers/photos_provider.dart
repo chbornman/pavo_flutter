@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/models/pagination.dart';
@@ -71,12 +72,31 @@ class PhotosState {
 @riverpod
 class PhotosNotifier extends _$PhotosNotifier {
   late final PhotosRepository _repository;
+  bool _hasInitialized = false;
+  DateTime? _lastFilterChange;
 
   @override
   PhotosState build() {
     _repository = ref.watch(photosRepositoryProvider);
-    // Schedule initial data load after build completes
-    Future.microtask(() => loadPhotos());
+    
+    // Initialize data load only once
+    if (!_hasInitialized) {
+      _hasInitialized = true;
+      // Use ref.onDispose to reset the flag if provider is recreated
+      ref.onDispose(() => _hasInitialized = false);
+      // Schedule initial load after build cycle completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Check if the notifier is still available before loading
+        try {
+          // Accessing state will throw if disposed
+          state;
+          loadPhotos();
+        } catch (_) {
+          // Notifier was disposed, skip loading
+        }
+      });
+    }
+    
     return const PhotosState();
   }
 
@@ -99,12 +119,20 @@ class PhotosNotifier extends _$PhotosNotifier {
       final response = await _repository.getPhotos(
         params: PaginationParams(
           page: 1,
-          limit: 50,
+          limit: 30, // Reduced from 50 for better performance
           sortBy: state.sortBy,
         ),
         type: state.activeFilter,
         forceRefresh: forceRefresh,
       );
+
+      // Check if notifier is still mounted
+      try {
+        // Accessing state will throw if disposed
+        state;
+      } catch (_) {
+        return;
+      }
 
       if (response.items.isEmpty) {
         state = state.copyWith(
@@ -122,15 +150,26 @@ class PhotosNotifier extends _$PhotosNotifier {
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        status: PaginationStatus.error,
-        error: e.toString(),
-      );
+      // Check if notifier is still mounted
+      try {
+        state = state.copyWith(
+          status: PaginationStatus.error,
+          error: e.toString(),
+        );
+      } catch (_) {
+        // Notifier was disposed
+      }
     }
   }
 
   /// Load more photos (pagination)
   Future<void> loadMore() async {
+    if (!state.hasMore || state.isLoadingMore || state.isLoading) return;
+
+    // Debounce to prevent multiple simultaneous requests
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Check again after delay
     if (!state.hasMore || state.isLoadingMore || state.isLoading) return;
 
     state = state.copyWith(status: PaginationStatus.loadingMore);
@@ -140,23 +179,41 @@ class PhotosNotifier extends _$PhotosNotifier {
       final response = await _repository.getPhotos(
         params: PaginationParams(
           page: nextPage,
-          limit: 50,
+          limit: 30, // Reduced from 50 for better performance
           sortBy: state.sortBy,
         ),
         type: state.activeFilter,
       );
 
+      // Check if notifier is still mounted
+      try {
+        state;
+      } catch (_) {
+        return;
+      }
+
+      // Prevent duplicates by using a Set
+      final existingIds = state.photos.map((p) => p.id).toSet();
+      final newPhotos = response.items
+          .where((photo) => !existingIds.contains(photo.id))
+          .toList();
+
       state = state.copyWith(
-        photos: [...state.photos, ...response.items],
+        photos: [...state.photos, ...newPhotos],
         status: PaginationStatus.success,
         hasMore: response.hasMore,
         currentPage: nextPage,
       );
     } catch (e) {
-      state = state.copyWith(
-        status: PaginationStatus.error,
-        error: e.toString(),
-      );
+      // Check if notifier is still mounted
+      try {
+        state = state.copyWith(
+          status: PaginationStatus.error,
+          error: e.toString(),
+        );
+      } catch (_) {
+        // Notifier was disposed
+      }
     }
   }
 
@@ -164,11 +221,25 @@ class PhotosNotifier extends _$PhotosNotifier {
   Future<void> setFilter(PhotoType? filter) async {
     if (state.activeFilter == filter) return;
 
+    // Debounce filter changes to prevent rapid successive calls
+    final now = DateTime.now();
+    _lastFilterChange = now;
+    
+    // Wait a short time to see if another filter change comes in
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // If another filter change happened during the delay, abort this one
+    if (_lastFilterChange != now) return;
+
+    // Prevent simultaneous filter operations
+    if (state.isLoading) return;
+
     state = state.copyWith(
       activeFilter: filter,
       photos: [],
       currentPage: 1,
       hasMore: true,
+      status: PaginationStatus.loading,
     );
 
     await loadPhotos();
