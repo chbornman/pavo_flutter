@@ -38,14 +38,18 @@ class PhotoGridItem extends StatelessWidget {
                 fit: BoxFit.cover,
                 httpHeaders: {
                   'x-api-key': EnvConfig.immichApiKey ?? '',
+                  'Accept': 'image/webp,image/png,image/jpeg,*/*',
+                  'Cache-Control': 'max-age=3600',
                 },
-                placeholder: (context, url) => _buildPlaceholder(),
-                errorWidget: (context, url, error) => _buildErrorWidget(),
+                placeholder: (context, url) {
+                  print('DEBUG: Loading thumbnail for URL: $url');
+                  return _buildPlaceholder();
+                },
+                errorWidget: (context, url, error) {
+                  print('ERROR: Failed to load thumbnail: $url - Error: $error');
+                  return _buildErrorWidget(error);
+                },
                 fadeInDuration: const Duration(milliseconds: 200),
-                memCacheWidth: 300, // Optimize memory usage
-                memCacheHeight: 300,
-                maxWidthDiskCache: 600,
-                maxHeightDiskCache: 600,
               ),
             ),
           ),
@@ -58,17 +62,6 @@ class PhotoGridItem extends StatelessWidget {
           
           // Selection overlay
           if (isSelected) _buildSelectionOverlay(),
-          
-          // Gradient overlay for better text visibility
-          _buildGradientOverlay(),
-          
-          // Bottom info
-          Positioned(
-            left: 8,
-            right: 8,
-            bottom: 8,
-            child: _buildBottomInfo(context),
-          ),
         ],
       ),
     );
@@ -84,14 +77,30 @@ class PhotoGridItem extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorWidget() {
+  Widget _buildErrorWidget([dynamic error]) {
     return Container(
       color: Colors.grey.shade200,
-      child: const Center(
-        child: Icon(
-          Icons.broken_image_outlined,
-          color: Colors.grey,
-          size: 40,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.broken_image_outlined,
+              color: Colors.grey,
+              size: 40,
+            ),
+            if (error != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Error loading',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -165,53 +174,4 @@ class PhotoGridItem extends StatelessWidget {
     );
   }
 
-  Widget _buildGradientOverlay() {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        height: 60,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(8)),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.transparent,
-              Colors.black.withOpacity(0.6),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomInfo(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (photo.displayName.isNotEmpty)
-          Text(
-            photo.displayName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        if (photo.formattedFileSize.isNotEmpty)
-          Text(
-            photo.formattedFileSize,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-              fontSize: 10,
-            ),
-          ),
-      ],
-    );
-  }
 }

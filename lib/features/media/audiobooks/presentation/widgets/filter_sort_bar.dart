@@ -19,6 +19,8 @@ class FilterSortBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 400;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -31,6 +33,7 @@ class FilterSortBar extends StatelessWidget {
           Expanded(
             child: DropdownButtonFormField<AudiobookFilter>(
               value: currentFilter,
+              isExpanded: true,
               decoration: InputDecoration(
                 labelText: 'Filter',
                 prefixIcon: const Icon(Icons.filter_list),
@@ -44,19 +47,31 @@ class FilterSortBar extends StatelessWidget {
               items: [
                 DropdownMenuItem(
                   value: AudiobookFilter.all,
-                  child: Text('All Books'),
+                  child: Text(
+                    'All Books',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 DropdownMenuItem(
                   value: AudiobookFilter.inProgress,
-                  child: Text('In Progress'),
+                  child: Text(
+                    isSmallScreen ? 'In Progress' : 'In Progress',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 DropdownMenuItem(
                   value: AudiobookFilter.notStarted,
-                  child: Text('Not Started'),
+                  child: Text(
+                    isSmallScreen ? 'Unstarted' : 'Not Started',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 DropdownMenuItem(
                   value: AudiobookFilter.finished,
-                  child: Text('Finished'),
+                  child: Text(
+                    'Finished',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
               onChanged: (value) {
@@ -67,12 +82,13 @@ class FilterSortBar extends StatelessWidget {
             ),
           ),
           
-          const SizedBox(width: AppConstants.padding),
+          const SizedBox(width: AppConstants.paddingSmall),
           
           // Sort dropdown
           Expanded(
             child: DropdownButtonFormField<AudiobookSort>(
               value: currentSort,
+              isExpanded: true,
               decoration: InputDecoration(
                 labelText: 'Sort',
                 prefixIcon: const Icon(Icons.sort),
@@ -86,15 +102,24 @@ class FilterSortBar extends StatelessWidget {
               items: [
                 DropdownMenuItem(
                   value: AudiobookSort.nameAsc,
-                  child: Text('Title A-Z'),
+                  child: Text(
+                    isSmallScreen ? 'A-Z' : 'Title A-Z',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 DropdownMenuItem(
                   value: AudiobookSort.dateDesc,
-                  child: Text('Recently Added'),
+                  child: Text(
+                    isSmallScreen ? 'Recent' : 'Recently Added',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 DropdownMenuItem(
                   value: AudiobookSort.dateAsc,
-                  child: Text('Oldest First'),
+                  child: Text(
+                    isSmallScreen ? 'Oldest' : 'Oldest First',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
               onChanged: (value) {

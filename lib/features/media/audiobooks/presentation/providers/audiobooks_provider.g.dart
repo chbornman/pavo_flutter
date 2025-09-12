@@ -208,7 +208,7 @@ class _CoverUrlProviderElement extends AutoDisposeProviderElement<String>
   int? get height => (origin as CoverUrlProvider).height;
 }
 
-String _$audiobooksListHash() => r'9b7bc0c0028a93eae6ef6188ceb36fed8ea4f3ac';
+String _$audiobooksListHash() => r'0262185394ca8024dac76be108dd29dfcc50e575';
 
 abstract class _$AudiobooksList
     extends BuildlessAutoDisposeAsyncNotifier<List<AudiobookEntity>> {
@@ -379,7 +379,7 @@ class _AudiobooksListProviderElement
 }
 
 String _$inProgressAudiobooksHash() =>
-    r'1741311725d1f391b20f2c52f0dd317afa22fb53';
+    r'bbe7275509386ddafd73891b3794d25f457c62ba';
 
 /// See also [InProgressAudiobooks].
 @ProviderFor(InProgressAudiobooks)
@@ -396,7 +396,7 @@ final inProgressAudiobooksProvider = AutoDisposeAsyncNotifierProvider<
 
 typedef _$InProgressAudiobooks
     = AutoDisposeAsyncNotifier<List<AudiobookEntity>>;
-String _$recentSessionsHash() => r'cc1462e5855e0caa18f988b4a3d7bead4e4ae9e1';
+String _$recentSessionsHash() => r'86950d86020969da677d3b5200564b06f6b3373e';
 
 /// See also [RecentSessions].
 @ProviderFor(RecentSessions)
@@ -413,7 +413,7 @@ final recentSessionsProvider = AutoDisposeAsyncNotifierProvider<RecentSessions,
 
 typedef _$RecentSessions
     = AutoDisposeAsyncNotifier<List<PlaybackSessionEntity>>;
-String _$playbackSessionHash() => r'9ac867dbc7d25644325c033128f729b66ab7d0ed';
+String _$playbackSessionHash() => r'47277c7f494c057a3285fa12dcf91cfd1e2d3b35';
 
 abstract class _$PlaybackSession
     extends BuildlessAutoDisposeAsyncNotifier<PlaybackSessionEntity?> {

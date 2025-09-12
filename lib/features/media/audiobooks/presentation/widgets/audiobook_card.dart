@@ -95,107 +95,67 @@ class AudiobookCard extends ConsumerWidget {
                     ),
                   ),
                 
-                // Play button overlay - only show on hover/tap
-                if (onPlayTap != null)
-                  Positioned(
-                    bottom: 8,
-                    right: 8,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        onPressed: onPlayTap,
-                        icon: Icon(
-                          Icons.play_arrow,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                        iconSize: 20,
-                        constraints: const BoxConstraints(
-                          minWidth: 36,
-                          minHeight: 36,
-                        ),
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
           
           const SizedBox(height: AppConstants.paddingSmall),
           
-          // Audiobook Info beneath the cover
+          // Audiobook Info beneath the cover - matching web app style
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center, // Center-aligned like web app
             children: [
-              // Title
+              // Title - single line with ellipsis like web app
               Text(
                 audiobook.title,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w500, // Medium weight like web app
                 ),
-                maxLines: 2,
+                maxLines: 1, // Single line only like web app
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
               
-              const SizedBox(height: 4),
+              const SizedBox(height: 2), // Minimal spacing like web app
               
-              // Author
+              // Author - single line with ellipsis like web app
               Text(
                 audiobook.author,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
+                  fontSize: 11, // Slightly smaller than title
                 ),
-                maxLines: 1,
+                maxLines: 1, // Single line only like web app
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
               
-              const SizedBox(height: 8),
-              
-              // Duration and Progress
-              Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    size: 12,
-                    color: theme.colorScheme.onSurfaceVariant,
+              // Progress indicator (optional, minimal like web app)
+              if (audiobook.hasProgress) ...[
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    audiobook.formattedDuration,
+                  child: Text(
+                    '${(audiobook.progress * 100).round()}%',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 10,
                     ),
                   ),
-                  
-                  if (audiobook.isFinished) ...[
-                    const Spacer(),
-                    Icon(
-                      Icons.check_circle,
-                      size: 14,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ] else if (audiobook.hasProgress) ...[
-                    const Spacer(),
-                    Text(
-                      '${(audiobook.progress * 100).round()}%',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+                ),
+              ] else if (audiobook.isFinished) ...[
+                const SizedBox(height: 4),
+                Icon(
+                  Icons.check_circle,
+                  size: 12,
+                  color: theme.colorScheme.primary,
+                ),
+              ],
             ],
           ),
         ],

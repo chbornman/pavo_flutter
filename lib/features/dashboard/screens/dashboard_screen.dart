@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../media/audiobooks/presentation/widgets/audiobook_mini_player.dart';
+import '../../media/music/presentation/widgets/music_mini_player.dart';
 
 class DashboardScreen extends ConsumerWidget {
   final Widget child;
@@ -20,7 +21,9 @@ class DashboardScreen extends ConsumerWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Show mini players above navigation
           const AudiobookMiniPlayer(),
+          const MusicMiniPlayer(),
           NavigationBar(
         selectedIndex: _getSelectedIndex(location),
         onDestinationSelected: (index) => _onItemTapped(context, index),

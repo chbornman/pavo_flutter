@@ -5,6 +5,7 @@ import 'package:pavo_flutter/core/config/env_config.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import '../../domain/entities/photo_entity.dart';
+import 'lightbox_video_player.dart';
 
 class PhotoLightbox extends StatefulWidget {
   final List<PhotoEntity> photos;
@@ -72,7 +73,22 @@ class _PhotoLightboxState extends State<PhotoLightbox> {
               scrollPhysics: const BouncingScrollPhysics(),
               builder: (BuildContext context, int index) {
                 final photo = widget.photos[index];
-                // Use thumbnail for preview, original might be too large or in unsupported format
+                
+                // Handle videos differently from images
+                if (photo.isVideo) {
+                  final videoUrl = photo.originalUrl ?? '';
+                  return PhotoViewGalleryPageOptions.customChild(
+                    child: LightboxVideoPlayer(
+                      videoUrl: videoUrl,
+                      headers: {
+                        'x-api-key': EnvConfig.immichApiKey ?? '',
+                      },
+                    ),
+                    heroAttributes: PhotoViewHeroAttributes(tag: 'photo_${photo.id}'),
+                  );
+                }
+                
+                // Handle images as before
                 final imageUrl = photo.thumbnailUrl ?? photo.originalUrl ?? '';
                 
                 return PhotoViewGalleryPageOptions(
@@ -251,7 +267,7 @@ class _PhotoLightboxState extends State<PhotoLightbox> {
                       ],
                       if (currentPhoto.formattedFileSize != null) ...[
                         Text(
-                          '${currentPhoto.formattedFileSize} • ${currentPhoto.width ?? 0} × ${currentPhoto.height ?? 0}',
+                          '${currentPhoto.formattedFileSize} • ${currentPhoto.width ?? 0} × ${currentPhoto.height ?? 0}${currentPhoto.isVideo && currentPhoto.duration != null ? ' • ${currentPhoto.formattedDuration}' : ''}',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
                             fontSize: 12,

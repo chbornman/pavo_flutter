@@ -101,7 +101,7 @@ class ImmichService {
       _logger.debug('Fetching asset by ID: $assetId');
 
       final response = await _apiClient.get<Map<String, dynamic>>(
-        '/api/asset/$assetId',
+        '/api/assets/$assetId',
       );
 
       final model = ImmichPhotoModel.fromJson(response);
@@ -120,12 +120,14 @@ class ImmichService {
   /// Get asset thumbnail URL
   /// Flutter pattern: Generate URLs for image widgets
   String getThumbnailUrl(String assetId, {String size = 'preview'}) {
-    return '$baseUrl/api/asset/thumbnail/$assetId?size=$size';
+    return '$baseUrl/api/assets/$assetId/thumbnail?size=$size';
   }
 
   /// Get asset original file URL
-  String getOriginalUrl(String assetId) {
-    return '$baseUrl/api/asset/file/$assetId';
+  String getOriginalUrl(String assetId, {String type = 'image'}) {
+    return type.toLowerCase() == 'video'
+        ? '$baseUrl/api/assets/$assetId/video/playback'
+        : '$baseUrl/api/assets/$assetId/original';
   }
 
   /// Download asset to device
@@ -138,7 +140,7 @@ class ImmichService {
       _logger.debug('Downloading asset: $assetId to $savePath');
 
       await _apiClient.get<ResponseBody>(
-        '/api/asset/file/$assetId',
+        '/api/assets/$assetId/original',
         options: Options(
           responseType: ResponseType.stream,
           headers: {

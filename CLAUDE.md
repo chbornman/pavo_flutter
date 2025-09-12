@@ -80,3 +80,4 @@ This project uses build_runner for generating Riverpod providers. Run code gener
 dart run build_runner build --delete-conflicting-outputs
 ```
 - no placeholder values! everything should be in the .env
+- 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss
