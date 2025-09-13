@@ -34,14 +34,6 @@ class _MusicTabScreenState extends ConsumerState<MusicTabScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Music',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.padding),
-                  
                   // Search bar
                   MusicSearchBar(
                     onChanged: (query) {

@@ -66,9 +66,6 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Documents'),
-      ),
       body: Column(
         children: [
           // Header with document count and filters

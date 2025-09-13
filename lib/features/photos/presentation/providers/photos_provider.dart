@@ -20,6 +20,105 @@ final photosRepositoryProvider = Provider<PhotosRepository>((ref) {
   return PhotosRepository(immichService: immichService);
 });
 
+/// Advanced filter options for photos
+class PhotoFilters {
+  final PhotoType? mediaType;
+  final bool? isFavorite;
+  final bool? isArchived;
+  final bool? isNotInAlbum;
+  final DateTime? dateFrom;
+  final DateTime? dateTo;
+  final String? country;
+  final String? state;
+  final String? city;
+  final String? cameraMake;
+  final String? cameraModel;
+  final String? searchQuery;
+  final String? context;
+  final String? filename;
+  final String? description;
+  final Set<String>? people;
+
+  const PhotoFilters({
+    this.mediaType,
+    this.isFavorite,
+    this.isArchived,
+    this.isNotInAlbum,
+    this.dateFrom,
+    this.dateTo,
+    this.country,
+    this.state,
+    this.city,
+    this.cameraMake,
+    this.cameraModel,
+    this.searchQuery,
+    this.context,
+    this.filename,
+    this.description,
+    this.people,
+  });
+
+  bool get hasActiveFilters =>
+      mediaType != null ||
+      isFavorite != null ||
+      isArchived != null ||
+      isNotInAlbum != null ||
+      dateFrom != null ||
+      dateTo != null ||
+      country != null ||
+      state != null ||
+      city != null ||
+      cameraMake != null ||
+      cameraModel != null ||
+      (searchQuery?.isNotEmpty ?? false) ||
+      (context?.isNotEmpty ?? false) ||
+      (filename?.isNotEmpty ?? false) ||
+      (description?.isNotEmpty ?? false) ||
+      (people?.isNotEmpty ?? false);
+
+  PhotoFilters copyWith({
+    PhotoType? mediaType,
+    bool? isFavorite,
+    bool? isArchived,
+    bool? isNotInAlbum,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    String? country,
+    String? state,
+    String? city,
+    String? cameraMake,
+    String? cameraModel,
+    String? searchQuery,
+    String? context,
+    String? filename,
+    String? description,
+    Set<String>? people,
+  }) {
+    return PhotoFilters(
+      mediaType: mediaType ?? this.mediaType,
+      isFavorite: isFavorite ?? this.isFavorite,
+      isArchived: isArchived ?? this.isArchived,
+      isNotInAlbum: isNotInAlbum ?? this.isNotInAlbum,
+      dateFrom: dateFrom ?? this.dateFrom,
+      dateTo: dateTo ?? this.dateTo,
+      country: country ?? this.country,
+      state: state ?? this.state,
+      city: city ?? this.city,
+      cameraMake: cameraMake ?? this.cameraMake,
+      cameraModel: cameraModel ?? this.cameraModel,
+      searchQuery: searchQuery ?? this.searchQuery,
+      context: context ?? this.context,
+      filename: filename ?? this.filename,
+      description: description ?? this.description,
+      people: people ?? this.people,
+    );
+  }
+
+  PhotoFilters clear() {
+    return const PhotoFilters();
+  }
+}
+
 /// State class for photos pagination
 /// Follows Flutter immutability patterns
 class PhotosState {
@@ -28,7 +127,7 @@ class PhotosState {
   final bool hasMore;
   final int currentPage;
   final String? error;
-  final PhotoType? activeFilter;
+  final PhotoFilters filters;
   final String? sortBy;
 
   const PhotosState({
@@ -37,7 +136,7 @@ class PhotosState {
     this.hasMore = true,
     this.currentPage = 1,
     this.error,
-    this.activeFilter,
+    this.filters = const PhotoFilters(),
     this.sortBy = 'date_desc',
   });
 
@@ -52,7 +151,7 @@ class PhotosState {
     bool? hasMore,
     int? currentPage,
     String? error,
-    PhotoType? activeFilter,
+    PhotoFilters? filters,
     String? sortBy,
   }) {
     return PhotosState(
@@ -61,7 +160,7 @@ class PhotosState {
       hasMore: hasMore ?? this.hasMore,
       currentPage: currentPage ?? this.currentPage,
       error: error ?? this.error,
-      activeFilter: activeFilter ?? this.activeFilter,
+      filters: filters ?? this.filters,
       sortBy: sortBy ?? this.sortBy,
     );
   }
@@ -122,7 +221,7 @@ class PhotosNotifier extends _$PhotosNotifier {
           limit: 30, // Reduced from 50 for better performance
           sortBy: state.sortBy,
         ),
-        type: state.activeFilter,
+        filters: state.filters,
         forceRefresh: forceRefresh,
       );
 
@@ -182,7 +281,7 @@ class PhotosNotifier extends _$PhotosNotifier {
           limit: 30, // Reduced from 50 for better performance
           sortBy: state.sortBy,
         ),
-        type: state.activeFilter,
+        filters: state.filters,
       );
 
       // Check if notifier is still mounted
@@ -217,17 +316,17 @@ class PhotosNotifier extends _$PhotosNotifier {
     }
   }
 
-  /// Filter photos by type
-  Future<void> setFilter(PhotoType? filter) async {
-    if (state.activeFilter == filter) return;
+  /// Update filters
+  Future<void> updateFilters(PhotoFilters newFilters) async {
+    if (state.filters == newFilters) return;
 
     // Debounce filter changes to prevent rapid successive calls
     final now = DateTime.now();
     _lastFilterChange = now;
-    
+
     // Wait a short time to see if another filter change comes in
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     // If another filter change happened during the delay, abort this one
     if (_lastFilterChange != now) return;
 
@@ -235,7 +334,7 @@ class PhotosNotifier extends _$PhotosNotifier {
     if (state.isLoading) return;
 
     state = state.copyWith(
-      activeFilter: filter,
+      filters: newFilters,
       photos: [],
       currentPage: 1,
       hasMore: true,
@@ -243,6 +342,72 @@ class PhotosNotifier extends _$PhotosNotifier {
     );
 
     await loadPhotos();
+  }
+
+  /// Update location filters
+  Future<void> updateLocationFilters({
+    String? country,
+    String? stateParam,
+    String? city,
+  }) async {
+    final newFilters = state.filters.copyWith(
+      country: country,
+      state: stateParam,
+      city: city,
+    );
+    await updateFilters(newFilters);
+  }
+
+  /// Update camera filters
+  Future<void> updateCameraFilters({
+    String? make,
+    String? model,
+  }) async {
+    final newFilters = state.filters.copyWith(
+      cameraMake: make,
+      cameraModel: model,
+    );
+    await updateFilters(newFilters);
+  }
+
+  /// Update display option filters
+  Future<void> updateDisplayFilters({
+    bool? isNotInAlbum,
+    bool? isArchived,
+    bool? isFavorite,
+  }) async {
+    final newFilters = state.filters.copyWith(
+      isNotInAlbum: isNotInAlbum,
+      isArchived: isArchived,
+      isFavorite: isFavorite,
+    );
+    await updateFilters(newFilters);
+  }
+
+  /// Update people filters
+  Future<void> updatePeopleFilters(Set<String>? people) async {
+    final newFilters = state.filters.copyWith(people: people);
+    await updateFilters(newFilters);
+  }
+
+  /// Update search context filters
+  Future<void> updateSearchFilters({
+    String? context,
+    String? filename,
+    String? description,
+  }) async {
+    final newFilters = state.filters.copyWith(
+      context: context,
+      filename: filename,
+      description: description,
+    );
+    await updateFilters(newFilters);
+  }
+
+  /// Set media type filter (legacy method for backward compatibility)
+  Future<void> setFilter(PhotoType? filter) async {
+    final newFilters = state.filters.copyWith(mediaType: filter);
+    await updateFilters(newFilters);
   }
 
   /// Change sort order

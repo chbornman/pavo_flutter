@@ -30,18 +30,6 @@ class _AudiobooksScreenState extends ConsumerState<AudiobooksScreen> {
     ));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Audiobooks'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref.invalidate(audiobooksListProvider);
-              ref.invalidate(inProgressAudiobooksProvider);
-            },
-          ),
-        ],
-      ),
       body: audiobooksAsync.when(
         data: (audiobooks) {
           if (audiobooks.isEmpty) {
