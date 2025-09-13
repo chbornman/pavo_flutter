@@ -88,8 +88,14 @@ class _DynamicTabBarState extends State<_DynamicTabBar> {
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 decoration: BoxDecoration(
                   color: isDarkMode
-                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                      : Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                      ? Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.2)
+                      : Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(18),
                 ),
               ),
@@ -97,7 +103,8 @@ class _DynamicTabBarState extends State<_DynamicTabBar> {
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                left: (180.0 / 5) * widget.controller.index + (180.0 / 5 - 30) / 2, // Center in each tab
+                left: (180.0 / 5) * widget.controller.index +
+                    (180.0 / 5 - 30) / 2, // Center in each tab
                 top: 0,
                 bottom: 0,
                 child: Center(
@@ -168,11 +175,12 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
     return Scaffold(
       extendBodyBehindAppBar: true, // Allow body content to flow behind app bar
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+        backgroundColor:
+            Theme.of(context).colorScheme.surface.withValues(alpha: 0.90),
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        toolbarHeight: 48, // Reduce height from default 56
+        toolbarHeight: 56, // Reduce height from default 56
         title: SizedBox(
           width: 180, // More compact width for navigation
           child: _DynamicTabBar(
@@ -182,7 +190,7 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
         ),
         centerTitle: true,
         leading: const Padding(
-          padding: EdgeInsets.only(left: 12.0),
+          padding: EdgeInsets.all(8.0),
           child: PavoLogoSmall(size: 24), // Smaller logo for compact app bar
         ),
         leadingWidth: 56,
@@ -198,3 +206,4 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
     );
   }
 }
+

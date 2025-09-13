@@ -81,7 +81,7 @@ class _LocationPickerState extends State<LocationPicker> {
       children: [
         // Country Dropdown
         DropdownButtonFormField<String?>(
-          initialValue: selectedCountry,
+          value: selectedCountry,
           decoration: const InputDecoration(
             labelText: 'Country',
             border: OutlineInputBorder(),
@@ -111,7 +111,7 @@ class _LocationPickerState extends State<LocationPicker> {
         // State Dropdown (only show if country is selected)
         if (selectedCountry != null && statesByCountry[selectedCountry] != null)
           DropdownButtonFormField<String?>(
-            initialValue: selectedState,
+            value: selectedState,
             decoration: const InputDecoration(
               labelText: 'State/Province',
               border: OutlineInputBorder(),
@@ -140,7 +140,7 @@ class _LocationPickerState extends State<LocationPicker> {
         // City Dropdown (only show if state is selected)
         if (selectedState != null && citiesByState[selectedState] != null)
           DropdownButtonFormField<String?>(
-            initialValue: selectedCity,
+            value: selectedCity,
             decoration: const InputDecoration(
               labelText: 'City',
               border: OutlineInputBorder(),

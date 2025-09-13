@@ -7,15 +7,14 @@ class SearchFilterChip extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final Widget? currentFilter;
-  final Key? key;
 
   const SearchFilterChip({
-    this.key,
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,
     this.currentFilter,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

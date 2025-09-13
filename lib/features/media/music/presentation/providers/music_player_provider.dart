@@ -107,7 +107,7 @@ class MusicPlayer extends _$MusicPlayer with LogMixin {
     ref.onDispose(() {
       _audioPlayer.dispose();
     });
-    
+
     return const MusicPlaybackState();
   }
 

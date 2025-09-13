@@ -68,7 +68,7 @@ class _CameraPickerState extends State<CameraPicker> {
       children: [
         // Camera Make Dropdown
         DropdownButtonFormField<String?>(
-          initialValue: selectedMake,
+          value: selectedMake,
           decoration: const InputDecoration(
             labelText: 'Camera Make',
             border: OutlineInputBorder(),
@@ -97,7 +97,7 @@ class _CameraPickerState extends State<CameraPicker> {
         // Camera Model Dropdown (only show if make is selected)
         if (selectedMake != null && modelsByMake[selectedMake] != null)
           DropdownButtonFormField<String?>(
-            initialValue: selectedModel,
+            value: selectedModel,
             decoration: const InputDecoration(
               labelText: 'Camera Model',
               border: OutlineInputBorder(),
