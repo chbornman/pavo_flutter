@@ -39,7 +39,7 @@ class _AudiobooksScreenState extends ConsumerState<AudiobooksScreen> {
                 return _buildEmptyState();
               }
 
-               return SingleChildScrollView(
+                return SingleChildScrollView(
                 padding: EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top,
                 ),
@@ -52,17 +52,47 @@ class _AudiobooksScreenState extends ConsumerState<AudiobooksScreen> {
                       onPlayTap: _playAudiobook,
                     ),
 
+                    // Separator between sections
+                    Container(
+                      height: 1,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: AppConstants.padding,
+                      ),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                    ),
+
+                    // Section title for all audiobooks
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.padding,
+                        AppConstants.padding,
+                        AppConstants.padding,
+                        AppConstants.paddingSmall,
+                      ),
+                      child: Text(
+                        'All Audiobooks',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
                     // Main audiobooks grid
                     Padding(
-                      padding: const EdgeInsets.all(AppConstants.padding),
+                      padding: const EdgeInsets.fromLTRB(
+                        AppConstants.padding,
+                        0,
+                        AppConstants.padding,
+                        AppConstants.padding,
+                      ),
                       child: GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
-                          childAspectRatio: 0.6, // Taller to accommodate text beneath
+                          childAspectRatio: 0.6,
                           crossAxisSpacing: AppConstants.paddingSmall,
-                          mainAxisSpacing: AppConstants.padding,
+                          mainAxisSpacing: AppConstants.paddingSmall,
                         ),
                         itemCount: audiobooks.length,
                         itemBuilder: (context, index) {
