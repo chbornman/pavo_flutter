@@ -90,7 +90,7 @@ class AudiobookPlayer extends _$AudiobookPlayer with LogMixin {
       _progressTimer?.cancel();
       _audioPlayer.dispose();
     });
-    
+
     return const AudiobookPlaybackState();
   }
 
@@ -158,7 +158,7 @@ class AudiobookPlayer extends _$AudiobookPlayer with LogMixin {
 
       // Create playback session
       final session = await ref.read(playbackSessionProvider(audiobook.id).future);
-      
+
       if (session == null) {
         throw Exception('Failed to create playback session');
       }

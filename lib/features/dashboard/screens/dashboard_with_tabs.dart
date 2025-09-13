@@ -9,6 +9,137 @@ import 'package:pavo_flutter/features/media/music/screens/music_screen.dart';
 import 'package:pavo_flutter/features/media/audiobooks/screens/audiobooks_screen.dart';
 import 'package:pavo_flutter/shared/widgets/pavo_logo.dart';
 
+class _DynamicTabBar extends StatefulWidget {
+  final TabController controller;
+  final List<Widget> screens;
+
+  const _DynamicTabBar({
+    required this.controller,
+    required this.screens,
+  });
+
+  @override
+  _DynamicTabBarState createState() => _DynamicTabBarState();
+}
+
+class _DynamicTabBarState extends State<_DynamicTabBar> {
+  bool get isDarkMode {
+    final brightness = MediaQuery.of(context).platformBrightness;
+    return brightness == Brightness.dark;
+  }
+
+  List<Tab> _buildTabs() {
+    return List.generate(widget.screens.length, (index) {
+      final isSelected = widget.controller.index == index;
+      final targetIconSize = isSelected ? 20.0 : 14.0;
+
+      IconData iconData;
+      switch (index) {
+        case 0:
+          iconData = Icons.photo_library;
+          break;
+        case 1:
+          iconData = Icons.description;
+          break;
+        case 2:
+          iconData = Icons.movie_creation;
+          break;
+        case 3:
+          iconData = Icons.music_note;
+          break;
+        case 4:
+          iconData = Icons.headphones;
+          break;
+        default:
+          iconData = Icons.help;
+      }
+
+      return Tab(
+        icon: TweenAnimationBuilder<double>(
+          tween: Tween<double>(
+            begin: isSelected ? 14.0 : 20.0,
+            end: targetIconSize,
+          ),
+          duration: const Duration(milliseconds: 200),
+          builder: (context, size, child) {
+            return Icon(
+              iconData,
+              size: size,
+              color: Theme.of(context).colorScheme.onSurface,
+            );
+          },
+        ),
+        iconMargin: EdgeInsets.zero,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: widget.controller,
+      builder: (context, child) {
+        return SizedBox(
+          height: 44,
+          child: Stack(
+            children: [
+              // Pill background spanning full width
+              Container(
+                height: 36,
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDarkMode
+                      ? Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.2)
+                      : Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+              // Animated circle indicator (cutout effect) - behind the icons
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                left: (180.0 / 5) * widget.controller.index +
+                    (180.0 / 5 - 30) / 2, // Center in each tab
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+              // TabBar with transparent indicator - renders on top
+              TabBar(
+                controller: widget.controller,
+                tabs: _buildTabs(),
+                isScrollable: false,
+                tabAlignment: TabAlignment.fill,
+                indicator: const BoxDecoration(
+                  color: Colors.transparent, // Transparent indicator
+                ),
+                dividerColor: Colors.transparent,
+                labelPadding: EdgeInsets.zero,
+                padding: EdgeInsets.zero,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class DashboardWithTabs extends ConsumerStatefulWidget {
   const DashboardWithTabs({super.key});
 
@@ -40,6 +171,25 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs> {
       appBar: AppBar(
         title: const PavoLogoSmall(size: 32),
         centerTitle: false,
+        backgroundColor:
+            Theme.of(context).colorScheme.surface.withValues(alpha: 0.90),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: 56, // Reduce height from default 56
+        title: SizedBox(
+          width: 180, // More compact width for navigation
+          child: _DynamicTabBar(
+            controller: _tabController,
+            screens: _screens,
+          ),
+        ),
+        centerTitle: true,
+        leading: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: PavoLogoSmall(size: 24), // Smaller logo for compact app bar
+        ),
+        leadingWidth: 56,
         actions: [
           IconButton(
             icon: Icon(
@@ -99,3 +249,4 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs> {
     );
   }
 }
+
