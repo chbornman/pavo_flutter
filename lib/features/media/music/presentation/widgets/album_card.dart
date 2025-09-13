@@ -34,6 +34,7 @@ class AlbumCard extends StatelessWidget {
 
     return Card(
       clipBehavior: Clip.antiAlias,
+      margin: EdgeInsets.zero,
       child: Column(
         children: [
           // Album header

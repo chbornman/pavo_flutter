@@ -88,22 +88,41 @@ class MovieGrid extends ConsumerWidget {
             ref.invalidate(moviesProvider);
             await ref.read(moviesProvider.future);
           },
-          child: GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 0.7,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: movies.length,
-            itemBuilder: (context, index) {
-              final movie = movies[index];
-              return MovieCard(
-                movie: movie,
-                onTap: () => _navigateToMovieDetail(context, ref, movie),
-              );
-            },
+          child: CustomScrollView(
+            slivers: [
+              // Add top spacing for app bar
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: MediaQuery.of(context).padding.top,
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  8,
+                  8,
+                  8,
+                  100, // Bottom padding for floating filter bar
+                ),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final movie = movies[index];
+                      return MovieCard(
+                        movie: movie,
+                        onTap: () => _navigateToMovieDetail(context, ref, movie),
+                      );
+                    },
+                    childCount: movies.length,
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

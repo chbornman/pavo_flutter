@@ -4,7 +4,7 @@ import 'package:pavo_flutter/shared/services/jellyfin_service.dart';
 
 part 'tv_shows_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<MediaItem>> tvShows(TvShowsRef ref) async {
   final service = JellyfinService();
   try {

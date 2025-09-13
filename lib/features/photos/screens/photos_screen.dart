@@ -4,6 +4,7 @@ import '../domain/entities/photo_entity.dart';
 import '../presentation/providers/photos_provider.dart';
 import '../presentation/widgets/photo_grid.dart';
 import '../presentation/widgets/photo_lightbox.dart';
+import '../presentation/widgets/floating_filter_bar.dart';
 
 class PhotosScreen extends ConsumerStatefulWidget {
   const PhotosScreen({super.key});
@@ -45,119 +46,24 @@ class _PhotosScreenState extends ConsumerState<PhotosScreen> {
     final photosState = ref.watch(photosNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Photos'),
-      ),
-      body: Column(
+      body: Stack(
         children: [
-          // Filter bar
-          _buildFilterBar(context, photosState),
-          
           // Main content
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                await ref.read(photosNotifierProvider.notifier).refresh();
-              },
-              child: _buildContent(context, photosState),
-            ),
+          RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(photosNotifierProvider.notifier).refresh();
+            },
+            child: _buildContent(context, photosState),
           ),
+
+          // Floating filter bar
+          const FloatingFilterBar(screenType: ScreenType.photos),
         ],
       ),
     );
   }
 
-  Widget _buildFilterBar(BuildContext context, PhotosState state) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
-        ),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Filter chips
-            FilterChip(
-              label: const Text('All'),
-              selected: state.activeFilter == null,
-              onSelected: (_) {
-                ref.read(photosNotifierProvider.notifier).setFilter(null);
-              },
-            ),
-            const SizedBox(width: 8),
-            FilterChip(
-              label: const Text('Photos'),
-              selected: state.activeFilter == PhotoType.image,
-              onSelected: (_) {
-                ref.read(photosNotifierProvider.notifier)
-                    .setFilter(PhotoType.image);
-              },
-            ),
-            const SizedBox(width: 8),
-            FilterChip(
-              label: const Text('Videos'),
-              selected: state.activeFilter == PhotoType.video,
-              onSelected: (_) {
-                ref.read(photosNotifierProvider.notifier)
-                    .setFilter(PhotoType.video);
-              },
-            ),
-            const SizedBox(width: 16),
-            // Sort button
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.sort),
-              tooltip: 'Sort by',
-              onSelected: (value) {
-                ref.read(photosNotifierProvider.notifier).setSortBy(value);
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'date_desc',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.arrow_downward,
-                        size: 18,
-                        color: state.sortBy == 'date_desc' 
-                          ? Theme.of(context).colorScheme.primary 
-                          : null,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('Newest first'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'date_asc',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.arrow_upward,
-                        size: 18,
-                        color: state.sortBy == 'date_asc' 
-                          ? Theme.of(context).colorScheme.primary 
-                          : null,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('Oldest first'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildContent(BuildContext context, PhotosState state) {
     // Initial loading
@@ -179,15 +85,35 @@ class _PhotosScreenState extends ConsumerState<PhotosScreen> {
 
     // Empty state
     if (state.isEmpty) {
+      String message = 'No media found';
+      IconData icon = Icons.photo_library_outlined;
+
+      if (state.filters.hasActiveFilters) {
+        if (state.filters.mediaType == PhotoType.video) {
+          message = 'No videos found';
+          icon = Icons.videocam_off_outlined;
+        } else if (state.filters.mediaType == PhotoType.image) {
+          message = 'No photos found';
+          icon = Icons.photo_library_outlined;
+        } else if (state.filters.isFavorite == true) {
+          message = 'No favorites found';
+          icon = Icons.favorite_border;
+        } else if (state.filters.isArchived == true) {
+          message = 'No archived items found';
+          icon = Icons.archive_outlined;
+        } else if (state.filters.searchQuery?.isNotEmpty ?? false) {
+          message = 'No results for "${state.filters.searchQuery}"';
+          icon = Icons.search_off;
+        } else {
+          message = 'No items found with current filters';
+        }
+      } else {
+        message = 'No media found';
+      }
+
       return PhotoGridEmptyState(
-        message: state.activeFilter == PhotoType.video
-            ? 'No videos found'
-            : state.activeFilter == PhotoType.image
-                ? 'No photos found'
-                : 'No media found',
-        icon: state.activeFilter == PhotoType.video
-            ? Icons.videocam_off_outlined
-            : Icons.photo_library_outlined,
+        message: message,
+        icon: icon,
         onRetry: () {
           ref.read(photosNotifierProvider.notifier).refresh();
         },
@@ -279,6 +205,8 @@ class _PhotosScreenState extends ConsumerState<PhotosScreen> {
       ),
     );
   }
+
+
 
   void _showPhotoDetails(BuildContext context, PhotoEntity photo) {
     showDialog(

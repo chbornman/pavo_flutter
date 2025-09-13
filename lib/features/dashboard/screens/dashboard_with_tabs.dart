@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pavo_flutter/core/theme/theme_provider.dart';
 import 'package:pavo_flutter/features/auth/widgets/custom_user_button.dart';
 import 'package:pavo_flutter/features/photos/screens/photos_screen.dart';
 import 'package:pavo_flutter/features/documents/screens/documents_screen.dart';
@@ -147,8 +146,9 @@ class DashboardWithTabs extends ConsumerStatefulWidget {
   ConsumerState<DashboardWithTabs> createState() => _DashboardWithTabsState();
 }
 
-class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs> {
-  int _selectedIndex = 0;
+class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   final List<Widget> _screens = const [
     PhotosScreen(),
@@ -159,15 +159,21 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _screens.length, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider);
-    final themeModeNotifier = ref.read(themeModeProvider.notifier);
-    
-    // Determine the actual theme being used
-    final brightness = Theme.of(context).brightness;
-    final isDarkMode = brightness == Brightness.dark;
-    
     return Scaffold(
+      extendBodyBehindAppBar: true, // Allow body content to flow behind app bar
       appBar: AppBar(
         title: const PavoLogoSmall(size: 32),
         centerTitle: false,
@@ -203,48 +209,21 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs> {
               ? 'Theme: System' 
               : (themeMode == ThemeMode.dark ? 'Theme: Dark' : 'Theme: Light'),
           ),
+        ),
+        centerTitle: true,
+        leading: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: PavoLogoSmall(size: 24), // Smaller logo for compact app bar
+        ),
+        leadingWidth: 56,
+        actions: [
           const CustomUserButton(),
           const SizedBox(width: 12),
         ],
       ),
-      body: IndexedStack(
-        index: _selectedIndex,
+      body: TabBarView(
+        controller: _tabController,
         children: _screens,
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.photo_library_outlined),
-            selectedIcon: Icon(Icons.photo_library),
-            label: '',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.description_outlined),
-            selectedIcon: Icon(Icons.description),
-            label: '',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.movie_creation_outlined),
-            selectedIcon: Icon(Icons.movie_creation),
-            label: '',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.music_note_outlined),
-            selectedIcon: Icon(Icons.music_note),
-            label: '',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.headphones_outlined),
-            selectedIcon: Icon(Icons.headphones),
-            label: '',
-          ),
-        ],
       ),
     );
   }

@@ -54,7 +54,7 @@ class ContinueListeningSection extends ConsumerWidget {
             ),
             
             SizedBox(
-              height: 260, // Increased height for text beneath covers
+              height: 240,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(
@@ -65,10 +65,10 @@ class ContinueListeningSection extends ConsumerWidget {
                   final audiobook = audiobooks[index];
                   
                   return Container(
-                    width: 160, // Slightly wider for better proportions
+                    width: 150,
                     margin: EdgeInsets.only(
                       right: index < audiobooks.length - 1 
-                          ? AppConstants.padding 
+                          ? AppConstants.paddingSmall 
                           : 0,
                     ),
                     child: AudiobookCard(
@@ -81,7 +81,7 @@ class ContinueListeningSection extends ConsumerWidget {
               ),
             ),
             
-            const SizedBox(height: AppConstants.padding),
+            const SizedBox(height: AppConstants.paddingSmall),
           ],
         );
       },

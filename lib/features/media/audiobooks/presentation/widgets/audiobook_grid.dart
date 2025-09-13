@@ -19,12 +19,12 @@ class AudiobookGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return GridView.builder(
-      padding: const EdgeInsets.all(AppConstants.padding),
+      padding: const EdgeInsets.all(8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.7,
-        crossAxisSpacing: AppConstants.padding,
-        mainAxisSpacing: AppConstants.padding,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
       ),
       itemCount: audiobooks.length,
       itemBuilder: (context, index) {

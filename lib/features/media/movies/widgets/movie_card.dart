@@ -21,6 +21,7 @@ class MovieCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 4,
+      margin: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,
         child: CachedNetworkImage(

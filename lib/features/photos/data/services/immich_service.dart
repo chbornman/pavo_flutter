@@ -5,6 +5,7 @@ import '../../../../core/config/env_config.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../../core/models/pagination.dart';
 import '../../domain/entities/photo_entity.dart';
+import '../../presentation/providers/photos_provider.dart';
 import '../models/immich_photo_model.dart';
 
 /// Service layer for Immich API communication
@@ -40,23 +41,75 @@ class ImmichService {
   /// Matches the Pavo web implementation pattern
   Future<PaginatedResponse<PhotoEntity>> fetchAssets({
     required PaginationParams params,
-    PhotoType? type,
+    PhotoFilters? filters,
   }) async {
     try {
-      _logger.debug('Fetching assets: page=${params.page}, limit=${params.limit}, type=$type');
+      _logger.debug('Fetching assets: page=${params.page}, limit=${params.limit}, filters=$filters');
 
       // Build request body matching Immich API
-      final requestBody = {
+      final requestBody = <String, dynamic>{
         'page': params.page,
         'size': params.limit,
         'order': params.sortBy == 'date_asc' ? 'asc' : 'desc',
         'withExif': true,
-        if (type != null) 'type': _getAssetType(type),
       };
+
+       // Add filters to request body
+       if (filters != null) {
+         if (filters.mediaType != null) {
+           requestBody['type'] = _getAssetType(filters.mediaType!);
+         }
+         if (filters.isFavorite != null) {
+           requestBody['isFavorite'] = filters.isFavorite;
+         }
+         if (filters.isArchived != null) {
+           requestBody['isArchived'] = filters.isArchived;
+         }
+         if (filters.isNotInAlbum != null) {
+           requestBody['isNotInAlbum'] = filters.isNotInAlbum;
+         }
+         if (filters.dateFrom != null) {
+           requestBody['takenAfter'] = filters.dateFrom!.toIso8601String();
+         }
+         if (filters.dateTo != null) {
+           requestBody['takenBefore'] = filters.dateTo!.toIso8601String();
+         }
+         if (filters.country != null || filters.state != null || filters.city != null) {
+           requestBody['exifInfo'] = <String, dynamic>{};
+           if (filters.country != null) requestBody['exifInfo']['country'] = filters.country;
+           if (filters.state != null) requestBody['exifInfo']['state'] = filters.state;
+           if (filters.city != null) requestBody['exifInfo']['city'] = filters.city;
+         }
+         if (filters.cameraMake != null || filters.cameraModel != null) {
+           requestBody['exifInfo'] ??= <String, dynamic>{};
+           if (filters.cameraMake != null) requestBody['exifInfo']['make'] = filters.cameraMake;
+           if (filters.cameraModel != null) requestBody['exifInfo']['model'] = filters.cameraModel;
+         }
+         if (filters.people?.isNotEmpty ?? false) {
+           requestBody['personIds'] = filters.people!.toList();
+         }
+         if (filters.context?.isNotEmpty ?? false) {
+           requestBody['query'] = filters.context;
+         }
+         if (filters.filename?.isNotEmpty ?? false) {
+           requestBody['originalFileName'] = filters.filename;
+         }
+         if (filters.description?.isNotEmpty ?? false) {
+           requestBody['description'] = filters.description;
+         }
+         if (filters.searchQuery?.isNotEmpty ?? false) {
+           requestBody['query'] = filters.searchQuery;
+         }
+       }
+
+      // Use different endpoints based on whether we have search query
+      final endpoint = filters?.searchQuery?.isNotEmpty ?? false
+          ? '/api/search/smart'
+          : '/api/search/metadata';
 
       // Call Immich search endpoint
       final response = await _apiClient.post<Map<String, dynamic>>(
-        '/api/search/metadata',
+        endpoint,
         data: requestBody,
       );
 
@@ -65,7 +118,7 @@ class ImmichService {
       final items = assets['items'] as List? ?? [];
       final totalCount = assets['count'] as int? ?? items.length;
       final nextPage = assets['nextPage'] as String?;
-      
+
       // Convert to domain entities
       final photos = items
           .map((json) => ImmichPhotoModel.fromJson(json))

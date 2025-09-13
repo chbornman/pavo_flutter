@@ -12,7 +12,7 @@ JellyfinService jellyfinMusicService(JellyfinMusicServiceRef ref) {
   return JellyfinService();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<Artist>> musicArtists(MusicArtistsRef ref) async {
   final service = ref.watch(jellyfinMusicServiceProvider);
   final artistsData = await service.getMusicArtists();
