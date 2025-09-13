@@ -57,7 +57,7 @@ class _PhotosScreenState extends ConsumerState<PhotosScreen> {
           ),
 
           // Floating filter bar
-          const FloatingFilterBar(),
+          const FloatingFilterBar(screenType: ScreenType.photos),
         ],
       ),
     );

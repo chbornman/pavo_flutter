@@ -6,7 +6,7 @@ import '../../../../../core/logging/log_mixin.dart';
 import '../providers/music_player_provider.dart';
 
 class MusicMiniPlayer extends ConsumerWidget with LogMixin {
-  const MusicMiniPlayer({super.key});
+  MusicMiniPlayer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

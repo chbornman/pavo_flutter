@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../features/photos/presentation/widgets/floating_filter_bar.dart';
 import '../presentation/providers/audiobooks_provider.dart';
 import '../presentation/providers/audiobook_player_provider.dart';
 import '../presentation/widgets/continue_listening_section.dart';
-import '../presentation/widgets/filter_sort_bar.dart';
 import '../presentation/widgets/audiobook_card.dart';
 import '../data/services/audiobookshelf_service.dart';
 import '../domain/entities/audiobook_entity.dart';
@@ -18,6 +18,7 @@ class AudiobooksScreen extends ConsumerStatefulWidget {
 }
 
 class _AudiobooksScreenState extends ConsumerState<AudiobooksScreen> {
+  // TODO: Remove local filter/sort state - will be managed by FloatingFilterBar
   AudiobookFilter _currentFilter = AudiobookFilter.all;
   AudiobookSort _currentSort = AudiobookSort.nameAsc;
 
@@ -30,68 +31,59 @@ class _AudiobooksScreenState extends ConsumerState<AudiobooksScreen> {
     ));
 
     return Scaffold(
-      body: audiobooksAsync.when(
-        data: (audiobooks) {
-          if (audiobooks.isEmpty) {
-            return _buildEmptyState();
-          }
+      body: Stack(
+        children: [
+          audiobooksAsync.when(
+            data: (audiobooks) {
+              if (audiobooks.isEmpty) {
+                return _buildEmptyState();
+              }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Continue Listening Section
-                ContinueListeningSection(
-                  onAudiobookTap: _navigateToDetail,
-                  onPlayTap: _playAudiobook,
-                ),
-
-                // Filter and Sort Bar
-                FilterSortBar(
-                  currentFilter: _currentFilter,
-                  currentSort: _currentSort,
-                  onFilterChanged: (filter) {
-                    setState(() {
-                      _currentFilter = filter;
-                    });
-                  },
-                  onSortChanged: (sort) {
-                    setState(() {
-                      _currentSort = sort;
-                    });
-                  },
-                ),
-
-                // Main audiobooks grid
-                Padding(
-                  padding: const EdgeInsets.all(AppConstants.padding),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 0.6, // Taller to accommodate text beneath
-                      crossAxisSpacing: AppConstants.paddingSmall,
-                      mainAxisSpacing: AppConstants.padding,
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Continue Listening Section
+                    ContinueListeningSection(
+                      onAudiobookTap: _navigateToDetail,
+                      onPlayTap: _playAudiobook,
                     ),
-                    itemCount: audiobooks.length,
-                    itemBuilder: (context, index) {
-                      final audiobook = audiobooks[index];
-                      
-                      return AudiobookCard(
-                        audiobook: audiobook,
-                        onTap: () => _navigateToDetail(audiobook),
-                        onPlayTap: () => _playAudiobook(audiobook),
-                      );
-                    },
-                  ),
+
+                    // Main audiobooks grid
+                    Padding(
+                      padding: const EdgeInsets.all(AppConstants.padding),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          childAspectRatio: 0.6, // Taller to accommodate text beneath
+                          crossAxisSpacing: AppConstants.paddingSmall,
+                          mainAxisSpacing: AppConstants.padding,
+                        ),
+                        itemCount: audiobooks.length,
+                        itemBuilder: (context, index) {
+                          final audiobook = audiobooks[index];
+
+                          return AudiobookCard(
+                            audiobook: audiobook,
+                            onTap: () => _navigateToDetail(audiobook),
+                            onPlayTap: () => _playAudiobook(audiobook),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => _buildErrorState(error),
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => _buildErrorState(error),
+          ),
+
+          // Floating filter bar
+          const FloatingFilterBar(screenType: ScreenType.audiobooks),
+        ],
       ),
     );
   }

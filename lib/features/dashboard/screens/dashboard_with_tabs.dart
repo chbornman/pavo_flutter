@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pavo_flutter/core/theme/theme_provider.dart';
 import 'package:pavo_flutter/features/auth/widgets/custom_user_button.dart';
 import 'package:pavo_flutter/features/photos/screens/photos_screen.dart';
 import 'package:pavo_flutter/features/documents/screens/documents_screen.dart';
@@ -166,13 +165,6 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider);
-    final themeModeNotifier = ref.read(themeModeProvider.notifier);
-
-    // Determine if user has selected dark mode
-    final isDarkMode = themeMode == ThemeMode.dark ||
-        (themeMode == ThemeMode.system && MediaQuery.of(context).platformBrightness == Brightness.dark);
-
     return Scaffold(
       appBar: AppBar(
         title: SizedBox(
@@ -189,19 +181,6 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
         ),
         leadingWidth: 56,
         actions: [
-          const SizedBox(width: 8), // Add spacing before theme button
-          IconButton(
-            icon: Icon(
-              isDarkMode ? Icons.light_mode : Icons.dark_mode,
-              size: 24,
-            ),
-            onPressed: () {
-              themeModeNotifier.toggleTheme();
-            },
-            tooltip: themeMode == ThemeMode.system
-              ? 'Theme: System'
-              : (themeMode == ThemeMode.dark ? 'Theme: Dark' : 'Theme: Light'),
-          ),
           const CustomUserButton(),
           const SizedBox(width: 12),
         ],

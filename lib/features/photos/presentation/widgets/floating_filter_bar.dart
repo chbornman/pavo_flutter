@@ -10,8 +10,22 @@ import 'camera_picker.dart';
 import 'media_type_picker.dart';
 import 'display_options_picker.dart';
 
+enum ScreenType {
+  photos,
+  documents,
+  movies,
+  tvShows,
+  music,
+  audiobooks,
+}
+
 class FloatingFilterBar extends ConsumerStatefulWidget {
-  const FloatingFilterBar({super.key});
+  final ScreenType screenType;
+
+  const FloatingFilterBar({
+    super.key,
+    required this.screenType,
+  });
 
   @override
   ConsumerState<FloatingFilterBar> createState() => _FloatingFilterBarState();
@@ -56,6 +70,409 @@ class _FloatingFilterBarState extends ConsumerState<FloatingFilterBar>
     });
   }
 
+  List<Widget> _buildFilterChips(BuildContext context) {
+    switch (widget.screenType) {
+      case ScreenType.photos:
+        return _buildPhotoFilterChips(context);
+      case ScreenType.documents:
+        return _buildDocumentFilterChips(context);
+      case ScreenType.movies:
+        return _buildMovieFilterChips(context);
+      case ScreenType.tvShows:
+        return _buildTVShowFilterChips(context);
+      case ScreenType.music:
+        return _buildMusicFilterChips(context);
+      case ScreenType.audiobooks:
+        return _buildAudiobookFilterChips(context);
+    }
+  }
+
+  List<Widget> _buildPhotoFilterChips(BuildContext context) {
+    final photosState = ref.watch(photosNotifierProvider);
+    return [
+      // Filter chips
+      SearchFilterChip(
+        icon: Icons.location_on_outlined,
+        label: 'Location',
+        currentFilter: photosState.filters.country != null ||
+                      photosState.filters.state != null ||
+                      photosState.filters.city != null
+            ? Text([
+                photosState.filters.country,
+                photosState.filters.state,
+                photosState.filters.city,
+              ].where((s) => s != null).join(', '))
+            : null,
+        onTap: () => _showLocationPicker(context, photosState),
+      ),
+
+      SearchFilterChip(
+        icon: Icons.camera_alt_outlined,
+        label: 'Camera',
+        currentFilter: photosState.filters.cameraMake != null ||
+                      photosState.filters.cameraModel != null
+            ? Text([
+                photosState.filters.cameraMake,
+                photosState.filters.cameraModel,
+              ].where((s) => s != null).join(' '))
+            : null,
+        onTap: () => _showCameraPicker(context, photosState),
+      ),
+
+      SearchFilterChip(
+        key: const Key('media_type_chip'),
+        icon: Icons.video_collection_outlined,
+        label: 'Media Type',
+        currentFilter: photosState.filters.mediaType != null
+            ? Text(photosState.filters.mediaType == PhotoType.image
+                ? 'Photos'
+                : photosState.filters.mediaType == PhotoType.video
+                ? 'Videos'
+                : 'All')
+            : null,
+        onTap: () => _showMediaTypePicker(context, photosState),
+      ),
+
+      SearchFilterChip(
+        icon: Icons.display_settings_outlined,
+        label: 'Display',
+        currentFilter: (photosState.filters.isNotInAlbum == true ||
+                       photosState.filters.isArchived == true ||
+                       photosState.filters.isFavorite == true)
+            ? Text([
+                if (photosState.filters.isNotInAlbum == true) 'Not in album',
+                if (photosState.filters.isArchived == true) 'Archived',
+                if (photosState.filters.isFavorite == true) 'Favorites',
+              ].join(', '))
+            : null,
+        onTap: () => _showDisplayOptionsPicker(context, photosState),
+      ),
+
+      SearchFilterChip(
+        icon: Icons.date_range,
+        label: 'Date',
+        currentFilter: photosState.filters.dateFrom != null || photosState.filters.dateTo != null
+            ? Text(_formatDateRange(photosState.filters.dateFrom, photosState.filters.dateTo))
+            : null,
+        onTap: () => _showDateRangePicker(context, photosState),
+      ),
+
+      // Sort options
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: PopupMenuButton<String>(
+          icon: Icon(
+            Icons.sort,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          tooltip: 'Sort by',
+          onSelected: (value) {
+            ref.read(photosNotifierProvider.notifier).setSortBy(value);
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'date_desc',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.arrow_downward,
+                    size: 18,
+                    color: photosState.sortBy == 'date_desc'
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('Newest first'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'date_asc',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.arrow_upward,
+                    size: 18,
+                    color: photosState.sortBy == 'date_asc'
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('Oldest first'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // Clear filters button (only show if filters are active)
+      if (photosState.filters.hasActiveFilters)
+        Container(
+          margin: const EdgeInsets.only(left: 8),
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: IconButton(
+            icon: Icon(
+              Icons.clear_all,
+              size: 20,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            onPressed: () {
+              ref.read(photosNotifierProvider.notifier).updateFilters(const PhotoFilters());
+            },
+            tooltip: 'Clear all filters',
+            padding: EdgeInsets.zero,
+          ),
+        ),
+    ];
+  }
+
+
+
+  List<Widget> _buildDocumentFilterChips(BuildContext context) {
+    // For now, just return a simple sort option for documents
+    return [
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: PopupMenuButton<String>(
+          icon: Icon(
+            Icons.sort,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          tooltip: 'Sort by',
+          onSelected: (value) {
+            // TODO: Implement document sorting
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'name_asc',
+              child: Row(
+                children: [
+                  Icon(Icons.sort_by_alpha, size: 18),
+                  SizedBox(width: 8),
+                  Text('Name A-Z'),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'name_desc',
+              child: Row(
+                children: [
+                  Icon(Icons.sort_by_alpha, size: 18),
+                  SizedBox(width: 8),
+                  Text('Name Z-A'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildMovieFilterChips(BuildContext context) {
+    // For now, just return a simple sort option for movies
+    return [
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: PopupMenuButton<String>(
+          icon: Icon(
+            Icons.sort,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          tooltip: 'Sort by',
+          onSelected: (value) {
+            // TODO: Implement movie sorting
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'title_asc',
+              child: Row(
+                children: [
+                  Icon(Icons.sort_by_alpha, size: 18),
+                  SizedBox(width: 8),
+                  Text('Title A-Z'),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'year_desc',
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 18),
+                  SizedBox(width: 8),
+                  Text('Newest first'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildTVShowFilterChips(BuildContext context) {
+    // For now, just return a simple sort option for TV shows
+    return [
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: PopupMenuButton<String>(
+          icon: Icon(
+            Icons.sort,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          tooltip: 'Sort by',
+          onSelected: (value) {
+            // TODO: Implement TV show sorting
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'name_asc',
+              child: Row(
+                children: [
+                  Icon(Icons.sort_by_alpha, size: 18),
+                  SizedBox(width: 8),
+                  Text('Name A-Z'),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'year_desc',
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 18),
+                  SizedBox(width: 8),
+                  Text('Newest first'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildMusicFilterChips(BuildContext context) {
+    return [
+      // Sort options
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: PopupMenuButton<String>(
+          icon: Icon(
+            Icons.sort,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          tooltip: 'Sort by',
+          onSelected: (value) {
+            // TODO: Implement music sorting
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'artist_asc',
+              child: Row(
+                children: [
+                  Icon(Icons.person, size: 18),
+                  SizedBox(width: 8),
+                  Text('Artist A-Z'),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'album_asc',
+              child: Row(
+                children: [
+                  Icon(Icons.album, size: 18),
+                  SizedBox(width: 8),
+                  Text('Album A-Z'),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'title_asc',
+              child: Row(
+                children: [
+                  Icon(Icons.music_note, size: 18),
+                  SizedBox(width: 8),
+                  Text('Title A-Z'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildAudiobookFilterChips(BuildContext context) {
+    // TODO: Implement proper audiobook filter/sort state management
+    // For now, return placeholder chips that will be connected to providers later
+    return [
+      // Filter by status chip
+      SearchFilterChip(
+        icon: Icons.filter_list,
+        label: 'Status',
+        currentFilter: Text('All Books'), // TODO: Connect to actual filter state
+        onTap: () {
+          // TODO: Show filter options (All, In Progress, Finished, Not Started)
+        },
+      ),
+
+      // Sort options
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: PopupMenuButton<String>(
+          icon: Icon(
+            Icons.sort,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          tooltip: 'Sort by',
+          onSelected: (value) {
+            // TODO: Implement audiobook sorting
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'title_asc',
+              child: Row(
+                children: [
+                  Icon(Icons.sort_by_alpha, size: 18),
+                  SizedBox(width: 8),
+                  Text('Title A-Z'),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'author_asc',
+              child: Row(
+                children: [
+                  Icon(Icons.person, size: 18),
+                  SizedBox(width: 8),
+                  Text('Author A-Z'),
+                ],
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'date_desc',
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 18),
+                  SizedBox(width: 8),
+                  Text('Recently Added'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+
+
   String _formatDateRange(DateTime? from, DateTime? to) {
     final dateFormat = DateFormat('MMM d, y');
     if (from == null && to == null) return '';
@@ -71,266 +488,195 @@ class _FloatingFilterBarState extends ConsumerState<FloatingFilterBar>
 
   @override
   Widget build(BuildContext context) {
-    final photosState = ref.watch(photosNotifierProvider);
-
     return Positioned(
       bottom: 16,
       left: 16,
       right: 16,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Mini player pill (shown when there's active playback)
+          if (_shouldShowMiniPlayer())
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: _buildMiniPlayerPill(context),
+            ),
+
+          // Filter and search row
+          Row(
+            children: [
+              // Filter chips pill on the left
+              Expanded(
+                flex: 2,
+                child: Container(
+                  height: 56,
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: _buildFilterChips(context),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Search circle on the right
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
+                ),
+                child: AnimatedBuilder(
+                  animation: _searchAnimation,
+                  builder: (context, child) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Search icon button
+                        IconButton(
+                          icon: Icon(
+                            _isSearchExpanded ? Icons.close : Icons.search,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 28,
+                          ),
+                          onPressed: _toggleSearch,
+                        ),
+
+                        // Expandable overlay when expanded
+                        if (_isSearchExpanded)
+                          Positioned.fill(
+                            child: Container(
+                              margin: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Opacity(
+                                opacity: _searchAnimation.value,
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Search...',
+                                    hintStyle: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                      fontSize: 14,
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                                  ),
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 14,
+                                  ),
+                                  onChanged: (query) {
+                                    // TODO: Implement universal search across screens
+                                    // For now, search is only functional on photos screen
+                                    if (widget.screenType == ScreenType.photos) {
+                                      final photosState = ref.watch(photosNotifierProvider);
+                                      final newFilters = photosState.filters.copyWith(searchQuery: query.trim());
+                                      ref.read(photosNotifierProvider.notifier).updateFilters(newFilters);
+                                    }
+                                  },
+                                  controller: widget.screenType == ScreenType.photos
+                                      ? TextEditingController(text: ref.watch(photosNotifierProvider).filters.searchQuery)
+                                      : TextEditingController(),
+                                  autofocus: true,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _shouldShowMiniPlayer() {
+    // TODO: Check if there's active playback for the current screen type
+    // For now, return false - will be implemented when connecting to providers
+    return false;
+  }
+
+  Widget _buildMiniPlayerPill(BuildContext context) {
+    // TODO: Return appropriate mini player widget based on screen type
+    // For now, return a placeholder
+    return Container(
+      height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(36),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          width: 1,
+        ),
+      ),
       child: Row(
         children: [
-          // Filter chips pill on the left
+          Icon(
+            widget.screenType == ScreenType.audiobooks ? Icons.headphones : Icons.music_note,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 12),
           Expanded(
-            flex: 2,
-            child: Container(
-              height: 56,
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    // Filter chips
-                    SearchFilterChip(
-                      icon: Icons.location_on_outlined,
-                      label: 'Location',
-                      currentFilter: photosState.filters.country != null ||
-                                    photosState.filters.state != null ||
-                                    photosState.filters.city != null
-                          ? Text([
-                              photosState.filters.country,
-                              photosState.filters.state,
-                              photosState.filters.city,
-                            ].where((s) => s != null).join(', '))
-                          : null,
-                      onTap: () => _showLocationPicker(context, photosState),
-                    ),
-
-                    SearchFilterChip(
-                      icon: Icons.camera_alt_outlined,
-                      label: 'Camera',
-                      currentFilter: photosState.filters.cameraMake != null ||
-                                    photosState.filters.cameraModel != null
-                          ? Text([
-                              photosState.filters.cameraMake,
-                              photosState.filters.cameraModel,
-                            ].where((s) => s != null).join(' '))
-                          : null,
-                      onTap: () => _showCameraPicker(context, photosState),
-                    ),
-
-                    SearchFilterChip(
-                      key: const Key('media_type_chip'),
-                      icon: Icons.video_collection_outlined,
-                      label: 'Media Type',
-                      currentFilter: photosState.filters.mediaType != null
-                          ? Text(photosState.filters.mediaType == PhotoType.image
-                              ? 'Photos'
-                              : photosState.filters.mediaType == PhotoType.video
-                              ? 'Videos'
-                              : 'All')
-                          : null,
-                      onTap: () => _showMediaTypePicker(context, photosState),
-                    ),
-
-                    SearchFilterChip(
-                      icon: Icons.display_settings_outlined,
-                      label: 'Display',
-                      currentFilter: (photosState.filters.isNotInAlbum == true ||
-                                     photosState.filters.isArchived == true ||
-                                     photosState.filters.isFavorite == true)
-                          ? Text([
-                              if (photosState.filters.isNotInAlbum == true) 'Not in album',
-                              if (photosState.filters.isArchived == true) 'Archived',
-                              if (photosState.filters.isFavorite == true) 'Favorites',
-                            ].join(', '))
-                          : null,
-                      onTap: () => _showDisplayOptionsPicker(context, photosState),
-                    ),
-
-                    SearchFilterChip(
-                      icon: Icons.date_range,
-                      label: 'Date',
-                      currentFilter: photosState.filters.dateFrom != null || photosState.filters.dateTo != null
-                          ? Text(_formatDateRange(photosState.filters.dateFrom, photosState.filters.dateTo))
-                          : null,
-                      onTap: () => _showDateRangePicker(context, photosState),
-                    ),
-
-                    // Sort options
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      child: PopupMenuButton<String>(
-                        icon: Icon(
-                          Icons.sort,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        tooltip: 'Sort by',
-                        onSelected: (value) {
-                          ref.read(photosNotifierProvider.notifier).setSortBy(value);
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'date_desc',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.arrow_downward,
-                                  size: 18,
-                                  color: photosState.sortBy == 'date_desc'
-                                    ? Theme.of(context).colorScheme.primary
-                                    : null,
-                                ),
-                                const SizedBox(width: 8),
-                                const Text('Newest first'),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'date_asc',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.arrow_upward,
-                                  size: 18,
-                                  color: photosState.sortBy == 'date_asc'
-                                    ? Theme.of(context).colorScheme.primary
-                                    : null,
-                                ),
-                                const SizedBox(width: 8),
-                                const Text('Oldest first'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Clear filters button (only show if filters are active)
-                    if (photosState.filters.hasActiveFilters)
-                      Container(
-                        margin: const EdgeInsets.only(left: 8),
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.clear_all,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          onPressed: () {
-                            ref.read(photosNotifierProvider.notifier).updateFilters(const PhotoFilters());
-                          },
-                          tooltip: 'Clear all filters',
-                          padding: EdgeInsets.zero,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+            child: Text(
+              'Mini Player - Coming Soon',
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
-
-          // Search circle on the right
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                width: 1,
-              ),
-            ),
-            child: AnimatedBuilder(
-              animation: _searchAnimation,
-              builder: (context, child) {
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Search icon button
-                    IconButton(
-                      icon: Icon(
-                        _isSearchExpanded ? Icons.close : Icons.search,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 28,
-                      ),
-                      onPressed: _toggleSearch,
-                    ),
-
-                    // Expandable overlay when expanded
-                    if (_isSearchExpanded)
-                      Positioned.fill(
-                        child: Container(
-                          margin: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Opacity(
-                            opacity: _searchAnimation.value,
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Search...',
-                                hintStyle: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                                  fontSize: 14,
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                              ),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontSize: 14,
-                              ),
-                              onChanged: (query) {
-                                final newFilters = photosState.filters.copyWith(searchQuery: query.trim());
-                                ref.read(photosNotifierProvider.notifier).updateFilters(newFilters);
-                              },
-                              controller: TextEditingController(text: photosState.filters.searchQuery),
-                              autofocus: true,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              // TODO: Stop playback
+            },
           ),
         ],
       ),

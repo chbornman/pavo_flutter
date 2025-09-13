@@ -23,7 +23,7 @@ class DashboardScreen extends ConsumerWidget {
         children: [
           // Show mini players above navigation - only one at a time
           // Music player takes priority if both are playing
-          const MusicMiniPlayer(),
+          MusicMiniPlayer(),
           const AudiobookMiniPlayer(),
           NavigationBar(
         selectedIndex: _getSelectedIndex(location),

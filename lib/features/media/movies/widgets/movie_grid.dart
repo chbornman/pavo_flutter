@@ -89,7 +89,7 @@ class MovieGrid extends ConsumerWidget {
             await ref.read(moviesProvider.future);
           },
           child: GridView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Add bottom padding for floating filter bar
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio: 0.7,
