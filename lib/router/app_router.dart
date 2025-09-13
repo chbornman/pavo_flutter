@@ -94,21 +94,21 @@ final routerProvider = Provider<GoRouter>((ref) {
               child: AudiobooksScreen(),
             ),
           ),
+          GoRoute(
+            path: '/movies/detail/:movieId',
+            builder: (context, state) {
+              final movieId = state.pathParameters['movieId']!;
+              return MovieDetailScreen(movieId: movieId);
+            },
+          ),
+          GoRoute(
+            path: '/movies/player/:movieId',
+            builder: (context, state) {
+              final movieId = state.pathParameters['movieId']!;
+              return MoviePlayerScreen(movieId: movieId);
+            },
+          ),
         ],
-      ),
-      GoRoute(
-        path: '/movies/detail/:movieId',
-        builder: (context, state) {
-          final movieId = state.pathParameters['movieId']!;
-          return MovieDetailScreen(movieId: movieId);
-        },
-      ),
-      GoRoute(
-        path: '/movies/player/:movieId',
-        builder: (context, state) {
-          final movieId = state.pathParameters['movieId']!;
-          return MoviePlayerScreen(movieId: movieId);
-        },
       ),
       GoRoute(
         path: '/audiobooks/detail/:audiobookId',

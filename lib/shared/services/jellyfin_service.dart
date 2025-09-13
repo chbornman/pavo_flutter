@@ -111,6 +111,14 @@ class JellyfinService extends BaseApiService {
     return items.map((json) => MediaItem.fromJson(json)).toList();
   }
 
+  Future<MediaItem> getMovieById(String movieId) async {
+    final data = await handleRequest<Map<String, dynamic>>(
+      () => dio.get('/Users/${EnvConfig.jellyfinUserId}/Items/$movieId'),
+    );
+    
+    return MediaItem.fromJson(data);
+  }
+
   String getImageUrl(String itemId) {
     return '${EnvConfig.jellyfinUrl}/Items/$itemId/Images/Primary';
   }

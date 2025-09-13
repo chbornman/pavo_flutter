@@ -17,6 +17,12 @@ Future<List<MediaItem>> movies(MoviesRef ref) async {
 }
 
 @riverpod
+Future<MediaItem> movieById(MovieByIdRef ref, String movieId) async {
+  final service = ref.watch(jellyfinServiceProvider);
+  return service.getMovieById(movieId);
+}
+
+@riverpod
 class SelectedMovie extends _$SelectedMovie {
   @override
   MediaItem? build() => null;

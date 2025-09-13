@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../../core/constants/app_constants.dart';
+import '../../../../../core/logging/log_mixin.dart';
 import '../providers/music_player_provider.dart';
 
-class MusicMiniPlayer extends ConsumerWidget {
+class MusicMiniPlayer extends ConsumerWidget with LogMixin {
   const MusicMiniPlayer({super.key});
 
   @override
@@ -12,8 +13,11 @@ class MusicMiniPlayer extends ConsumerWidget {
     final playbackState = ref.watch(musicPlayerProvider);
     final theme = Theme.of(context);
 
+    log.debug('MusicMiniPlayer - currentTrack: ${playbackState.currentTrack?.name}, playerState: ${playbackState.playerState}');
+
     if (playbackState.currentTrack == null ||
         playbackState.playerState == MusicPlayerState.idle) {
+      log.debug('MusicMiniPlayer - Hiding (no track or idle state)');
       return const SizedBox.shrink();
     }
 

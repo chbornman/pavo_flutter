@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pavo_flutter/features/media/movies/providers/movies_provider.dart';
 import 'package:pavo_flutter/features/media/movies/widgets/movie_card.dart';
+import 'package:pavo_flutter/features/media/movies/screens/movie_player_screen.dart';
 import 'package:pavo_flutter/shared/models/media_item.dart';
 import 'package:pavo_flutter/shared/services/jellyfin_service.dart';
 import 'package:pavo_flutter/shared/services/jellyfin_image_cache_manager.dart';
@@ -101,7 +101,7 @@ class MovieGrid extends ConsumerWidget {
               final movie = movies[index];
               return MovieCard(
                 movie: movie,
-                onTap: () => _navigateToMovieDetail(context, ref, movie),
+                onTap: () => _navigateToMoviePlayer(context, ref, movie),
               );
             },
           ),
@@ -110,9 +110,12 @@ class MovieGrid extends ConsumerWidget {
     );
   }
 
-  void _navigateToMovieDetail(BuildContext context, WidgetRef ref, MediaItem movie) {
-    ref.read(selectedMovieProvider.notifier).select(movie);
-    context.push('/movies/detail/${movie.id}');
+  void _navigateToMoviePlayer(BuildContext context, WidgetRef ref, MediaItem movie) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => MoviePlayerScreen(movieId: movie.id),
+      ),
+    );
   }
 
   void _preloadMoviePosters(List<MediaItem> movies) {

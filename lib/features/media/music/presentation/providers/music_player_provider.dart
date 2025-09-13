@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math' as math;
+import 'dart:math' as math hide log;
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:audio_session/audio_session.dart';
@@ -122,11 +122,12 @@ class MusicPlayer extends _$MusicPlayer with LogMixin {
         ProcessingState.buffering => MusicPlayerState.loading,
         ProcessingState.ready => playerState.playing 
             ? MusicPlayerState.playing 
-            : MusicPlayerState.ready,
+            : MusicPlayerState.paused,
         ProcessingState.completed => _handleTrackCompleted(),
       };
 
       if (newState != null) {
+        log.debug('Music player state change: $newState, playing: ${playerState.playing}');
         state = state.copyWith(
           playerState: newState,
           isLoading: playerState.processingState == ProcessingState.loading ||
@@ -453,7 +454,7 @@ class MusicPlayer extends _$MusicPlayer with LogMixin {
       );
 
       state = state.copyWith(
-        playerState: MusicPlayerState.ready,
+        playerState: MusicPlayerState.paused,
         isLoading: false,
       );
 
