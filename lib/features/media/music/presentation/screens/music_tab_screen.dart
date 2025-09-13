@@ -59,6 +59,12 @@ class _MusicTabScreenState extends ConsumerState<MusicTabScreen> {
 
                   return CustomScrollView(
                     slivers: [
+                      // Add top spacing for app bar
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: MediaQuery.of(context).padding.top + kToolbarHeight,
+                        ),
+                      ),
                       // Artists Grid
                       SliverPadding(
                         padding: const EdgeInsets.all(AppConstants.padding),

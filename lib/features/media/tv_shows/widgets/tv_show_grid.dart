@@ -89,7 +89,12 @@ class TVShowGrid extends ConsumerWidget {
             await ref.read(tvShowsProvider.future);
           },
           child: GridView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100), // Add bottom padding for floating filter bar
+            padding: EdgeInsets.fromLTRB(
+              16, 
+              MediaQuery.of(context).padding.top + kToolbarHeight + 16, // Top padding for app bar
+              16, 
+              100, // Bottom padding for floating filter bar
+            ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio: 0.7,

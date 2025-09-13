@@ -28,6 +28,12 @@ class DocumentGrid extends StatelessWidget {
     return CustomScrollView(
       controller: scrollController,
       slivers: [
+        // Add top spacing for app bar
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).padding.top + kToolbarHeight,
+          ),
+        ),
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverGrid(

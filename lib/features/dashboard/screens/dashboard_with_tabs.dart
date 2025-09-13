@@ -197,14 +197,9 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
           const SizedBox(width: 12),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + kToolbarHeight, // Account for status bar + app bar height
-        ),
-        child: TabBarView(
-          controller: _tabController,
-          children: _screens,
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: _screens,
       ),
     );
   }
