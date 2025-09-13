@@ -1,4 +1,4 @@
-package com.example.pavo_flutter
+package com.chbornman.pavo
 
 import io.flutter.embedding.android.FlutterActivity
 

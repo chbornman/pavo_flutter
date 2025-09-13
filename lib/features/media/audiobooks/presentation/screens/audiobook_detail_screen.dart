@@ -42,10 +42,14 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
     
     return audiobooksAsync.when(
       data: (audiobooks) {
-        final audiobook = audiobooks.firstWhere(
-          (book) => book.id == widget.audiobookId,
-          orElse: () => audiobooks.isNotEmpty ? audiobooks.first : null,
-        );
+        final AudiobookEntity? audiobook;
+        try {
+          audiobook = audiobooks.firstWhere(
+            (book) => book.id == widget.audiobookId,
+          );
+        } catch (e) {
+          audiobook = audiobooks.isNotEmpty ? audiobooks.first : null;
+        }
         
         if (audiobook == null) {
           return Scaffold(

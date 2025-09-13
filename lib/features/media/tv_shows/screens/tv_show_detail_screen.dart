@@ -160,7 +160,7 @@ class _TVShowDetailScreenState extends ConsumerState<TVShowDetailScreen> {
                             ),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<Season>(
-                              initialValue: selectedSeason,
+                              value: selectedSeason,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),

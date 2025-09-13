@@ -9,10 +9,8 @@ Future<List<MediaItem>> tvShows(TvShowsRef ref) async {
   final service = JellyfinService();
   try {
     final shows = await service.getTVShows();
-    print('Successfully loaded ${shows.length} TV shows');
     return shows;
   } catch (e) {
-    print('Error loading TV shows: $e');
     rethrow;
   }
 }
