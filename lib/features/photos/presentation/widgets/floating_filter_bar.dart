@@ -36,6 +36,7 @@ class _FloatingFilterBarState extends ConsumerState<FloatingFilterBar>
   bool _isSearchExpanded = false;
   late AnimationController _searchAnimationController;
   late Animation<double> _searchAnimation;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -51,11 +52,18 @@ class _FloatingFilterBarState extends ConsumerState<FloatingFilterBar>
       parent: _searchAnimationController,
       curve: Curves.easeInOut,
     ));
+
+    // Initialize search controller with existing query if available
+    if (widget.screenType == ScreenType.photos) {
+      final photosState = ref.read(photosNotifierProvider);
+      _searchController.text = photosState.filters.searchQuery ?? '';
+    }
   }
 
   @override
   void dispose() {
     _searchAnimationController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -66,8 +74,21 @@ class _FloatingFilterBarState extends ConsumerState<FloatingFilterBar>
         _searchAnimationController.forward();
       } else {
         _searchAnimationController.reverse();
+        // Clear search when closing
+        _searchController.clear();
+        _onSearchChanged('');
       }
     });
+  }
+
+  void _onSearchChanged(String query) {
+    // TODO: Implement universal search across screens
+    // For now, search is only functional on photos screen
+    if (widget.screenType == ScreenType.photos) {
+      final photosState = ref.read(photosNotifierProvider);
+      final newFilters = photosState.filters.copyWith(searchQuery: query.trim());
+      ref.read(photosNotifierProvider.notifier).updateFilters(newFilters);
+    }
   }
 
   List<Widget> _buildFilterChips(BuildContext context) {
@@ -488,148 +509,195 @@ class _FloatingFilterBarState extends ConsumerState<FloatingFilterBar>
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 16,
-      left: 16,
-      right: 16,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Mini player pill (shown when there's active playback)
-          if (_shouldShowMiniPlayer())
-            Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: _buildMiniPlayerPill(context),
-            ),
-
-          // Filter and search row
-          Row(
+    return Stack(
+      children: [
+        // Main floating filter bar
+        Positioned(
+          bottom: 16,
+          left: 16,
+          right: 16,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Filter chips pill on the left
-              Expanded(
-                flex: 2,
-                child: Container(
-                  height: 56,
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                      width: 1,
-                    ),
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: _buildFilterChips(context),
-                    ),
-                  ),
+              // Mini player pill (shown when there's active playback)
+              if (_shouldShowMiniPlayer())
+                Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: _buildMiniPlayerPill(context),
                 ),
-              ),
 
-              // Search circle on the right
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                    width: 1,
-                  ),
-                ),
-                child: AnimatedBuilder(
-                  animation: _searchAnimation,
-                  builder: (context, child) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Search icon button
-                        IconButton(
-                          icon: Icon(
-                            _isSearchExpanded ? Icons.close : Icons.search,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 28,
+              // Filter and search row
+              Row(
+                children: [
+                  // Filter chips pill on the left
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      height: 56,
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
                           ),
-                          onPressed: _toggleSearch,
+                        ],
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                          width: 1,
                         ),
+                      ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: _buildFilterChips(context),
+                        ),
+                      ),
+                    ),
+                  ),
 
-                        // Expandable overlay when expanded
-                        if (_isSearchExpanded)
-                          Positioned.fill(
-                            child: Container(
-                              margin: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Opacity(
-                                opacity: _searchAnimation.value,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Search...',
-                                    hintStyle: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                                      fontSize: 14,
-                                    ),
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                                  ),
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    fontSize: 14,
-                                  ),
-                                  onChanged: (query) {
-                                    // TODO: Implement universal search across screens
-                                    // For now, search is only functional on photos screen
-                                    if (widget.screenType == ScreenType.photos) {
-                                      final photosState = ref.watch(photosNotifierProvider);
-                                      final newFilters = photosState.filters.copyWith(searchQuery: query.trim());
-                                      ref.read(photosNotifierProvider.notifier).updateFilters(newFilters);
-                                    }
-                                  },
-                                  controller: widget.screenType == ScreenType.photos
-                                      ? TextEditingController(text: ref.watch(photosNotifierProvider).filters.searchQuery)
-                                      : TextEditingController(),
-                                  autofocus: true,
-                                ),
-                              ),
-                            ),
-                          ),
+                  // Search circle on the right
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
                       ],
-                    );
-                  },
-                ),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                        width: 1,
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        _isSearchExpanded ? Icons.close : Icons.search,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 28,
+                      ),
+                      onPressed: _toggleSearch,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        ),
+
+        // Pill-shaped search window that appears above keyboard
+        if (_isSearchExpanded)
+          Positioned(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 80, // Position above keyboard
+            left: 16,
+            right: 16,
+            child: AnimatedBuilder(
+              animation: _searchAnimation,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, (1 - _searchAnimation.value) * 50), // Slide up animation
+                  child: Opacity(
+                    opacity: _searchAnimation.value,
+                    child: Container(
+                      height: 56,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.search,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: _getSearchHintText(),
+                                hintStyle: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 16,
+                              ),
+                              onChanged: _onSearchChanged,
+                              autofocus: true,
+                              textInputAction: TextInputAction.search,
+                            ),
+                          ),
+                          if (_searchController.text.isNotEmpty)
+                            IconButton(
+                              icon: Icon(
+                                Icons.clear,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                _onSearchChanged('');
+                              },
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 24,
+                                minHeight: 24,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
     );
+  }
+
+  String _getSearchHintText() {
+    switch (widget.screenType) {
+      case ScreenType.photos:
+        return 'Search photos...';
+      case ScreenType.documents:
+        return 'Search documents...';
+      case ScreenType.movies:
+        return 'Search movies...';
+      case ScreenType.tvShows:
+        return 'Search TV shows...';
+      case ScreenType.music:
+        return 'Search music...';
+      case ScreenType.audiobooks:
+        return 'Search audiobooks...';
+    }
   }
 
   bool _shouldShowMiniPlayer() {
