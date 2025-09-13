@@ -88,27 +88,41 @@ class TVShowGrid extends ConsumerWidget {
             ref.invalidate(tvShowsProvider);
             await ref.read(tvShowsProvider.future);
           },
-          child: GridView.builder(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              MediaQuery.of(context).padding.top, // Top padding for app bar
-              16,
-              100, // Bottom padding for floating filter bar
-            ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 0.7,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: tvShows.length,
-            itemBuilder: (context, index) {
-              final tvShow = tvShows[index];
-              return TVShowCard(
-                tvShow: tvShow,
-                onTap: () => _navigateToTVShowDetail(context, ref, tvShow),
-              );
-            },
+          child: CustomScrollView(
+            slivers: [
+              // Add top spacing for app bar
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: MediaQuery.of(context).padding.top,
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  8,
+                  8,
+                  8,
+                  100, // Bottom padding for floating filter bar
+                ),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final tvShow = tvShows[index];
+                      return TVShowCard(
+                        tvShow: tvShow,
+                        onTap: () => _navigateToTVShowDetail(context, ref, tvShow),
+                      );
+                    },
+                    childCount: tvShows.length,
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

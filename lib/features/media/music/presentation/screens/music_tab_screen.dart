@@ -67,15 +67,15 @@ class _MusicTabScreenState extends ConsumerState<MusicTabScreen> {
                         ),
                       ),
                       // Artists Grid
-                      SliverPadding(
-                        padding: const EdgeInsets.all(AppConstants.padding),
-                        sliver: SliverGrid(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 1.0,
-                            crossAxisSpacing: AppConstants.padding,
-                            mainAxisSpacing: AppConstants.padding,
-                          ),
+                       SliverPadding(
+                         padding: const EdgeInsets.all(8),
+                         sliver: SliverGrid(
+                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                             crossAxisCount: 2,
+                             childAspectRatio: 1.0,
+                             crossAxisSpacing: 8,
+                             mainAxisSpacing: 8,
+                           ),
                           delegate: SliverChildBuilderDelegate(
                             (context, index) {
                               final artist = filteredArtists[index];
