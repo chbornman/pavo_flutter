@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clerk_auth/clerk_auth.dart' as clerk;
 import 'package:clerk_flutter/clerk_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pavo_flutter/core/theme/theme_provider.dart';
 
-class CustomUserButton extends StatelessWidget {
+class CustomUserButton extends ConsumerWidget {
   final double size;
   
   const CustomUserButton({
@@ -12,7 +14,7 @@ class CustomUserButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ClerkAuthBuilder(
       builder: (context, authState) {
         final user = authState.user;
@@ -28,6 +30,10 @@ class CustomUserButton extends StatelessWidget {
           offset: const Offset(0, 40),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 1,
+            ),
           ),
           child: Container(
             width: size,
@@ -52,78 +58,97 @@ class CustomUserButton extends StatelessWidget {
                   : _buildFallback(context, initials),
             ),
           ),
-          itemBuilder: (context) => [
-            PopupMenuItem<String>(
-              value: 'profile',
-              child: Row(
-                children: [
-                  const Icon(Icons.person_outline, size: 20),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim().isEmpty 
-                            ? user.username ?? 'User'
-                            : '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      if (user.emailAddresses?.isNotEmpty == true)
+          itemBuilder: (context) {
+            final themeMode = ref.watch(themeModeProvider);
+            final isDarkMode = themeMode == ThemeMode.dark ||
+                (themeMode == ThemeMode.system && 
+                 MediaQuery.of(context).platformBrightness == Brightness.dark);
+            
+            return [
+              PopupMenuItem<String>(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    const Icon(Icons.person_outline, size: 20),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         Text(
-                          user.emailAddresses!.first.emailAddress,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
+                          '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim().isEmpty 
+                              ? user.username ?? 'User'
+                              : '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
-                    ],
+                        if (user.emailAddresses?.isNotEmpty == true)
+                          Text(
+                            user.emailAddresses!.first.emailAddress,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).textTheme.bodySmall?.color,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                value: 'theme',
+                enabled: false,
+                child: Center(
+                  child: _ThemeSelector(
+                    themeMode: themeMode,
+                    onChanged: (mode) {
+                      ref.read(themeModeProvider.notifier).setThemeMode(mode);
+                    },
                   ),
-                ],
+                ),
               ),
-            ),
-            const PopupMenuDivider(),
-            PopupMenuItem<String>(
-              value: 'account',
-              child: Row(
-                children: const [
-                  Icon(Icons.manage_accounts_outlined, size: 20),
-                  SizedBox(width: 12),
-                  Text('Manage Account'),
-                ],
+              PopupMenuItem<String>(
+                value: 'account',
+                child: Row(
+                  children: const [
+                    Icon(Icons.manage_accounts_outlined, size: 20),
+                    SizedBox(width: 12),
+                    Text('Manage Account'),
+                  ],
+                ),
               ),
-            ),
-            PopupMenuItem<String>(
-              value: 'settings',
-              child: Row(
-                children: const [
-                  Icon(Icons.settings_outlined, size: 20),
-                  SizedBox(width: 12),
-                  Text('Settings'),
-                ],
+              PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: const [
+                    Icon(Icons.settings_outlined, size: 20),
+                    SizedBox(width: 12),
+                    Text('Settings'),
+                  ],
+                ),
               ),
-            ),
-            const PopupMenuDivider(),
-            PopupMenuItem<String>(
-              value: 'signout',
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.logout_outlined,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Sign Out',
-                    style: TextStyle(
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                value: 'signout',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.logout_outlined,
+                      size: 20,
                       color: Theme.of(context).colorScheme.error,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Text(
+                      'Sign Out',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ];
+          },
           onSelected: (value) async {
             switch (value) {
               case 'profile':
@@ -136,6 +161,9 @@ class CustomUserButton extends StatelessWidget {
                 break;
               case 'settings':
                 // Navigate to app settings
+                break;
+              case 'theme':
+                // Theme toggle is handled by the Switch widget
                 break;
               case 'signout':
                 // Sign out
@@ -210,7 +238,7 @@ class CustomUserButton extends StatelessWidget {
       );
       
       if (shouldSignOut == true && context.mounted) {
-        await ClerkAuth.of(context)?.signOut();
+        await ClerkAuth.of(context).signOut();
       }
     } catch (e) {
       if (context.mounted) {
@@ -222,5 +250,126 @@ class CustomUserButton extends StatelessWidget {
         );
       }
     }
+  }
+}
+
+class _ThemeSelector extends StatefulWidget {
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onChanged;
+
+  const _ThemeSelector({
+    required this.themeMode,
+    required this.onChanged,
+  });
+
+  @override
+  State<_ThemeSelector> createState() => _ThemeSelectorState();
+}
+
+class _ThemeSelectorState extends State<_ThemeSelector> {
+  late ThemeMode _currentMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentMode = widget.themeMode;
+  }
+
+  @override
+  void didUpdateWidget(_ThemeSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.themeMode != widget.themeMode) {
+      _currentMode = widget.themeMode;
+    }
+  }
+
+  void _handleModeChange(ThemeMode mode) {
+    setState(() {
+      _currentMode = mode;
+    });
+    widget.onChanged(mode);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final selectedIndex = _currentMode == ThemeMode.system ? 0 
+        : _currentMode == ThemeMode.light ? 1 
+        : 2;
+
+    return Container(
+      height: 36,
+      decoration: BoxDecoration(
+        color: isDarkMode
+            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Animated circle indicator (cutout effect)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            left: selectedIndex * 40.0 + 6,
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          // Options
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildOption(
+                context: context,
+                icon: Icons.settings_suggest,
+                isSelected: _currentMode == ThemeMode.system,
+                onTap: () => _handleModeChange(ThemeMode.system),
+              ),
+              _buildOption(
+                context: context,
+                icon: Icons.light_mode,
+                isSelected: _currentMode == ThemeMode.light,
+                onTap: () => _handleModeChange(ThemeMode.light),
+              ),
+              _buildOption(
+                context: context,
+                icon: Icons.dark_mode,
+                isSelected: _currentMode == ThemeMode.dark,
+                onTap: () => _handleModeChange(ThemeMode.dark),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOption({
+    required BuildContext context,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 40,
+        height: 36,
+        alignment: Alignment.center,
+        child: Icon(
+          icon,
+          size: 16,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
+    );
   }
 }
