@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pavo_flutter/features/media/movies/providers/movies_provider.dart';
-import 'package:pavo_flutter/features/media/movies/widgets/movie_card.dart';
-import 'package:pavo_flutter/features/media/movies/screens/movie_detail_screen.dart';
+import 'package:pavo_flutter/features/media/tv_shows/providers/tv_shows_provider.dart';
+import 'package:pavo_flutter/features/media/tv_shows/widgets/tv_show_card.dart';
+import 'package:pavo_flutter/features/media/tv_shows/screens/tv_show_detail_screen.dart';
 import 'package:pavo_flutter/shared/models/media_item.dart';
 import 'package:pavo_flutter/shared/services/jellyfin_service.dart';
 import 'package:pavo_flutter/shared/services/jellyfin_image_cache_manager.dart';
 
-class MovieGrid extends ConsumerWidget {
-  const MovieGrid({super.key});
+class TVShowGrid extends ConsumerWidget {
+  const TVShowGrid({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final moviesAsync = ref.watch(moviesProvider);
+    final tvShowsAsync = ref.watch(tvShowsProvider);
     
-    return moviesAsync.when(
+    return tvShowsAsync.when(
       loading: () => const Center(
         child: CircularProgressIndicator(),
       ),
@@ -29,7 +29,7 @@ class MovieGrid extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Failed to load movies',
+              'Failed to load TV shows',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
@@ -42,32 +42,32 @@ class MovieGrid extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () => ref.invalidate(moviesProvider),
+              onPressed: () => ref.invalidate(tvShowsProvider),
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
             ),
           ],
         ),
       ),
-      data: (movies) {
-        if (movies.isEmpty) {
+      data: (tvShows) {
+        if (tvShows.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.movie_outlined,
+                  Icons.tv_outlined,
                   size: 64,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No movies found',
+                  'No TV shows found',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Your Jellyfin movie library appears to be empty',
+                  'Your Jellyfin TV show library appears to be empty',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -78,15 +78,15 @@ class MovieGrid extends ConsumerWidget {
           );
         }
 
-        // Preload first batch of movie posters for better UX
+        // Preload first batch of TV show posters for better UX
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _preloadMoviePosters(movies);
+          _preloadTVShowPosters(tvShows);
         });
 
         return RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(moviesProvider);
-            await ref.read(moviesProvider.future);
+            ref.invalidate(tvShowsProvider);
+            await ref.read(tvShowsProvider.future);
           },
           child: GridView.builder(
             padding: const EdgeInsets.all(16),
@@ -96,12 +96,12 @@ class MovieGrid extends ConsumerWidget {
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
             ),
-            itemCount: movies.length,
+            itemCount: tvShows.length,
             itemBuilder: (context, index) {
-              final movie = movies[index];
-              return MovieCard(
-                movie: movie,
-                onTap: () => _navigateToMovieDetail(context, ref, movie),
+              final tvShow = tvShows[index];
+              return TVShowCard(
+                tvShow: tvShow,
+                onTap: () => _navigateToTVShowDetail(context, ref, tvShow),
               );
             },
           ),
@@ -110,19 +110,19 @@ class MovieGrid extends ConsumerWidget {
     );
   }
 
-  void _navigateToMovieDetail(BuildContext context, WidgetRef ref, MediaItem movie) {
+  void _navigateToTVShowDetail(BuildContext context, WidgetRef ref, MediaItem tvShow) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => MovieDetailScreen(movieId: movie.id),
+        builder: (context) => TVShowDetailScreen(showId: tvShow.id),
       ),
     );
   }
 
-  void _preloadMoviePosters(List<MediaItem> movies) {
+  void _preloadTVShowPosters(List<MediaItem> tvShows) {
     final jellyfinService = JellyfinService();
-    final imageUrls = movies
-        .take(20) // Limit to first 20 movies
-        .map((movie) => jellyfinService.getImageUrl(movie.id))
+    final imageUrls = tvShows
+        .take(20) // Limit to first 20 TV shows
+        .map((tvShow) => jellyfinService.getImageUrl(tvShow.id))
         .toList();
     
     JellyfinCacheUtils.preloadMoviePosters(imageUrls);

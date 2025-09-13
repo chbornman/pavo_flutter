@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pavo_flutter/features/media/movies/providers/movies_provider.dart';
+import 'package:pavo_flutter/features/media/movies/screens/movie_player_screen.dart';
 import 'package:pavo_flutter/shared/services/jellyfin_service.dart';
 import 'package:pavo_flutter/shared/services/jellyfin_image_cache_manager.dart';
 import 'package:pavo_flutter/shared/models/media_item.dart';
@@ -17,30 +17,61 @@ class MovieDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedMovie = ref.watch(selectedMovieProvider);
+    final movieAsync = ref.watch(movieByIdProvider(movieId));
     final jellyfinService = JellyfinService();
 
-    if (selectedMovie == null) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: const Center(
-          child: Text('Movie not found'),
+    return movieAsync.when(
+      loading: () => const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
-      );
-    }
-
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 400,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: jellyfinService.getImageUrl(selectedMovie.id),
+      ),
+      error: (error, stackTrace) => Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load movie',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                error.toString(),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(movieByIdProvider(movieId)),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      data: (movie) => Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 400,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: jellyfinService.getImageUrl(movie.id),
                     cacheManager: JellyfinImageCacheManager(),
                     fit: BoxFit.cover,
                     fadeInDuration: const Duration(milliseconds: 300),
@@ -90,13 +121,13 @@ class MovieDetailScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              selectedMovie.name,
+                              movie.name,
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            _buildMovieInfo(context, selectedMovie),
+                            _buildMovieInfo(context, movie),
                           ],
                         ),
                       ),
@@ -106,7 +137,7 @@ class MovieDetailScreen extends ConsumerWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () => _playMovie(context, selectedMovie.id),
+                      onPressed: () => _playMovie(context, movie.id),
                       icon: const Icon(Icons.play_arrow),
                       label: const Text('Play Movie'),
                       style: ElevatedButton.styleFrom(
@@ -114,7 +145,7 @@ class MovieDetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  if (selectedMovie.overview?.isNotEmpty == true) ...[
+                  if (movie.overview?.isNotEmpty == true) ...[
                     const SizedBox(height: 24),
                     Text(
                       'Overview',
@@ -124,11 +155,11 @@ class MovieDetailScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      selectedMovie.overview!,
+                      movie.overview!,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
-                  if (selectedMovie.genres.isNotEmpty) ...[
+                  if (movie.genres.isNotEmpty) ...[
                     const SizedBox(height: 24),
                     Text(
                       'Genres',
@@ -140,7 +171,7 @@ class MovieDetailScreen extends ConsumerWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: selectedMovie.genres
+                      children: movie.genres
                           .map((genre) => Chip(
                                 label: Text(genre),
                                 backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
@@ -154,7 +185,8 @@ class MovieDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildMovieInfo(BuildContext context, MediaItem movie) {
@@ -187,6 +219,10 @@ class MovieDetailScreen extends ConsumerWidget {
   }
 
   void _playMovie(BuildContext context, String movieId) {
-    context.push('/movies/player/$movieId');
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => MoviePlayerScreen(movieId: movieId),
+      ),
+    );
   }
 }
