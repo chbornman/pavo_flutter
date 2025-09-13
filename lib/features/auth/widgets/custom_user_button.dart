@@ -59,72 +59,106 @@ class CustomUserButton extends ConsumerWidget {
             ),
           ),
           itemBuilder: (context) {
-            final themeMode = ref.watch(themeModeProvider);
-            final isDarkMode = themeMode == ThemeMode.dark ||
-                (themeMode == ThemeMode.system && 
-                 MediaQuery.of(context).platformBrightness == Brightness.dark);
-            
             return [
               PopupMenuItem<String>(
                 value: 'profile',
-                child: Row(
-                  children: [
-                    const Icon(Icons.person_outline, size: 20),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    // Watch theme to rebuild when it changes
+                    ref.watch(themeModeProvider);
+                    final colorScheme = Theme.of(context).colorScheme;
+                    final iconColor = colorScheme.onSurface;
+                    final textColor = colorScheme.onSurface;
+                    final subtextColor = colorScheme.onSurfaceVariant;
+                    
+                    return Row(
                       children: [
-                        Text(
-                          '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim().isEmpty 
-                              ? user.username ?? 'User'
-                              : '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        if (user.emailAddresses?.isNotEmpty == true)
-                          Text(
-                            user.emailAddresses!.first.emailAddress,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                        Icon(Icons.person_outline, size: 20, color: iconColor),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim().isEmpty 
+                                  ? user.username ?? 'User'
+                                  : '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: textColor,
+                              ),
                             ),
-                          ),
+                            if (user.emailAddresses?.isNotEmpty == true)
+                              Text(
+                                user.emailAddresses!.first.emailAddress,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: subtextColor,
+                                ),
+                              ),
+                          ],
+                        ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
               const PopupMenuDivider(),
               PopupMenuItem<String>(
                 value: 'theme',
                 enabled: false,
-                child: Center(
-                  child: _ThemeSelector(
-                    themeMode: themeMode,
-                    onChanged: (mode) {
-                      ref.read(themeModeProvider.notifier).setThemeMode(mode);
-                    },
-                  ),
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final themeMode = ref.watch(themeModeProvider);
+                    return Center(
+                      child: _ThemeSelector(
+                        themeMode: themeMode,
+                        onChanged: (mode) {
+                          ref.read(themeModeProvider.notifier).setThemeMode(mode);
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
               PopupMenuItem<String>(
                 value: 'account',
-                child: Row(
-                  children: const [
-                    Icon(Icons.manage_accounts_outlined, size: 20),
-                    SizedBox(width: 12),
-                    Text('Manage Account'),
-                  ],
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    // Watch theme to rebuild when it changes
+                    ref.watch(themeModeProvider);
+                    final colorScheme = Theme.of(context).colorScheme;
+                    final iconColor = colorScheme.onSurface;
+                    final textColor = colorScheme.onSurface;
+                    
+                    return Row(
+                      children: [
+                        Icon(Icons.manage_accounts_outlined, size: 20, color: iconColor),
+                        const SizedBox(width: 12),
+                        Text('Manage Account', style: TextStyle(color: textColor)),
+                      ],
+                    );
+                  },
                 ),
               ),
               PopupMenuItem<String>(
                 value: 'settings',
-                child: Row(
-                  children: const [
-                    Icon(Icons.settings_outlined, size: 20),
-                    SizedBox(width: 12),
-                    Text('Settings'),
-                  ],
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    // Watch theme to rebuild when it changes
+                    ref.watch(themeModeProvider);
+                    final colorScheme = Theme.of(context).colorScheme;
+                    final iconColor = colorScheme.onSurface;
+                    final textColor = colorScheme.onSurface;
+                    
+                    return Row(
+                      children: [
+                        Icon(Icons.settings_outlined, size: 20, color: iconColor),
+                        const SizedBox(width: 12),
+                        Text('Settings', style: TextStyle(color: textColor)),
+                      ],
+                    );
+                  },
                 ),
               ),
               const PopupMenuDivider(),
