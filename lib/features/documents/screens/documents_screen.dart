@@ -45,9 +45,9 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
           documentsAsync.when(
             data: (documents) {
               if (documents.isEmpty) {
-                return Padding(
+                 return Padding(
                   padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                    top: MediaQuery.of(context).padding.top,
                   ),
                   child: Center(
                     child: Column(
@@ -93,9 +93,9 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
             loading: () => const Center(
               child: CircularProgressIndicator(),
             ),
-            error: (error, stack) => Padding(
+             error: (error, stack) => Padding(
               padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                top: MediaQuery.of(context).padding.top,
               ),
               child: Center(
                 child: Column(

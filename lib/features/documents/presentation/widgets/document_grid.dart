@@ -31,7 +31,7 @@ class DocumentGrid extends StatelessWidget {
         // Add top spacing for app bar
         SliverToBoxAdapter(
           child: SizedBox(
-            height: MediaQuery.of(context).padding.top + kToolbarHeight,
+            height: MediaQuery.of(context).padding.top,
           ),
         ),
         SliverPadding(

@@ -45,7 +45,7 @@ class _PhotoGridState extends ConsumerState<PhotoGrid> with AutomaticKeepAliveCl
         // Add top spacing for app bar
         SliverToBoxAdapter(
           child: SizedBox(
-            height: MediaQuery.of(context).padding.top + kToolbarHeight,
+            height: MediaQuery.of(context).padding.top,
           ),
         ),
         // Photo grid

@@ -39,9 +39,9 @@ class _AudiobooksScreenState extends ConsumerState<AudiobooksScreen> {
                 return _buildEmptyState();
               }
 
-              return SingleChildScrollView(
+               return SingleChildScrollView(
                 padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                  top: MediaQuery.of(context).padding.top,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

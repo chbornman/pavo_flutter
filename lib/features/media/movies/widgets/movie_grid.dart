@@ -90,9 +90,9 @@ class MovieGrid extends ConsumerWidget {
           },
           child: GridView.builder(
             padding: EdgeInsets.fromLTRB(
-              16, 
-              MediaQuery.of(context).padding.top + kToolbarHeight + 16, // Top padding for app bar
-              16, 
+              16,
+              MediaQuery.of(context).padding.top, // Top padding for app bar
+              16,
               100, // Bottom padding for floating filter bar
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

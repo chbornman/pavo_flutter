@@ -24,8 +24,9 @@ class _MusicTabScreenState extends ConsumerState<MusicTabScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          SafeArea(
-            child: artistsAsync.when(
+           SafeArea(
+             top: false,
+             child: artistsAsync.when(
                 data: (artists) {
                   // Filter artists based on search
                   final filteredArtists = _searchQuery.isEmpty
@@ -62,7 +63,7 @@ class _MusicTabScreenState extends ConsumerState<MusicTabScreen> {
                       // Add top spacing for app bar
                       SliverToBoxAdapter(
                         child: SizedBox(
-                          height: MediaQuery.of(context).padding.top + kToolbarHeight,
+                          height: MediaQuery.of(context).padding.top,
                         ),
                       ),
                       // Artists Grid
