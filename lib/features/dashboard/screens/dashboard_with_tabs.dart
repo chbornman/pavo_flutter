@@ -167,56 +167,39 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true, // Allow body content to flow behind app bar
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(64), // Slightly taller for pill effect
-        child: Container(
-          margin: const EdgeInsets.only(top: 8, left: 16, right: 16, bottom: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(32), // Pill shape
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-              width: 1,
-            ),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent, // Transparent to show pill background
-            elevation: 0, // Remove default shadow since we have custom pill shadow
-            shadowColor: Colors.transparent,
-            surfaceTintColor: Colors.transparent,
-            title: SizedBox(
-              width: 180, // More compact width for navigation
-              child: _DynamicTabBar(
-                controller: _tabController,
-                screens: _screens,
-              ),
-            ),
-            centerTitle: true,
-            leading: const Padding(
-              padding: EdgeInsets.only(left: 12.0),
-              child: PavoLogoSmall(size: 32),
-            ),
-            leadingWidth: 56,
-            actions: [
-              const CustomUserButton(),
-              const SizedBox(width: 12),
-            ],
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28), // Pill shape for app bar only
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            width: 1,
           ),
         ),
+        title: SizedBox(
+          width: 180, // More compact width for navigation
+          child: _DynamicTabBar(
+            controller: _tabController,
+            screens: _screens,
+          ),
+        ),
+        centerTitle: true,
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 12.0),
+          child: PavoLogoSmall(size: 32),
+        ),
+        leadingWidth: 56,
+        actions: [
+          const CustomUserButton(),
+          const SizedBox(width: 12),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 16), // Add top padding to account for pill app bar
-        child: TabBarView(
-          controller: _tabController,
-          children: _screens,
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: _screens,
       ),
     );
   }
