@@ -15,7 +15,8 @@ class AudiobookDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AudiobookDetailScreen> createState() => _AudiobookDetailScreenState();
+  ConsumerState<AudiobookDetailScreen> createState() =>
+      _AudiobookDetailScreenState();
 }
 
 class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
@@ -36,21 +37,14 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final playbackState = ref.watch(audiobookPlayerProvider);
     final audiobooksAsync = ref.watch(audiobooksListProvider());
-    
+
     return audiobooksAsync.when(
       data: (audiobooks) {
-        final AudiobookEntity? audiobook;
-        try {
-          audiobook = audiobooks.firstWhere(
-            (book) => book.id == widget.audiobookId,
-          );
-        } catch (e) {
-          audiobook = audiobooks.isNotEmpty ? audiobooks.first : null;
-        }
-        
+        final matching =
+            audiobooks.where((book) => book.id == widget.audiobookId);
+        final audiobook = matching.isNotEmpty ? matching.first : null;
+
         if (audiobook == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('Audiobook Not Found')),
@@ -59,7 +53,7 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
             ),
           );
         }
-        
+
         return Scaffold(
           body: CustomScrollView(
             slivers: [
@@ -70,7 +64,6 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
                   background: _buildCoverSection(audiobook),
                 ),
               ),
-              
               SliverToBoxAdapter(
                 child: Column(
                   children: [
@@ -80,7 +73,6 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
                   ],
                 ),
               ),
-              
               SliverFillRemaining(
                 child: TabBarView(
                   controller: _tabController,
@@ -109,8 +101,9 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
   }
 
   Widget _buildCoverSection(AudiobookEntity audiobook) {
-    final coverUrl = ref.watch(coverUrlProvider(widget.audiobookId, width: 400));
-    
+    final coverUrl =
+        ref.watch(coverUrlProvider(widget.audiobookId, width: 400));
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -155,7 +148,7 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
 
   Widget _buildAudiobookInfo(AudiobookEntity audiobook) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.all(AppConstants.padding),
       child: Column(
@@ -176,7 +169,8 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          if (audiobook.narrator.isNotEmpty && audiobook.narrator != audiobook.author) ...[
+          if (audiobook.narrator.isNotEmpty &&
+              audiobook.narrator != audiobook.author) ...[
             const SizedBox(height: 4),
             Text(
               'narrated by ${audiobook.narrator}',
@@ -226,13 +220,15 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
         children: [
           // Skip backward
           IconButton(
-            onPressed: playbackState.canPlay && playbackState.currentAudiobook?.id == audiobook.id
-                ? () => ref.read(audiobookPlayerProvider.notifier).skipBackward()
+            onPressed: playbackState.canPlay &&
+                    playbackState.currentAudiobook?.id == audiobook.id
+                ? () =>
+                    ref.read(audiobookPlayerProvider.notifier).skipBackward()
                 : null,
             icon: const Icon(Icons.replay_30),
             iconSize: 32,
           ),
-          
+
           // Play/Pause
           Container(
             decoration: BoxDecoration(
@@ -272,10 +268,11 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
               iconSize: 48,
             ),
           ),
-          
+
           // Skip forward
           IconButton(
-            onPressed: playbackState.canPlay && playbackState.currentAudiobook?.id == audiobook.id
+            onPressed: playbackState.canPlay &&
+                    playbackState.currentAudiobook?.id == audiobook.id
                 ? () => ref.read(audiobookPlayerProvider.notifier).skipForward()
                 : null,
             icon: const Icon(Icons.forward_30),
@@ -299,13 +296,14 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
 
   Widget _buildDetailsTab(AudiobookEntity audiobook) {
     final theme = Theme.of(context);
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppConstants.padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (audiobook.description != null && audiobook.description!.isNotEmpty) ...[
+          if (audiobook.description != null &&
+              audiobook.description!.isNotEmpty) ...[
             Text(
               'Description',
               style: theme.textTheme.titleMedium?.copyWith(
@@ -319,7 +317,6 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
             ),
             const SizedBox(height: AppConstants.padding),
           ],
-          
           if (audiobook.genres.isNotEmpty) ...[
             Text(
               'Genres',
@@ -334,13 +331,13 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
               children: audiobook.genres
                   .map((genre) => Chip(
                         label: Text(genre),
-                        backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                        backgroundColor:
+                            theme.colorScheme.surfaceContainerHighest,
                       ))
                   .toList(),
             ),
             const SizedBox(height: AppConstants.padding),
           ],
-          
           Text(
             'Details',
             style: theme.textTheme.titleMedium?.copyWith(
@@ -348,7 +345,6 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
             ),
           ),
           const SizedBox(height: AppConstants.paddingSmall),
-          
           if (audiobook.publisher != null) ...[
             _buildDetailRow('Publisher', audiobook.publisher!),
           ],
@@ -395,13 +391,13 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
 
   Widget _buildChaptersTab(AudiobookEntity audiobook) {
     final theme = Theme.of(context);
-    
+
     if (audiobook.chapters.isEmpty) {
       return const Center(
         child: Text('No chapters available'),
       );
     }
-    
+
     return ListView.builder(
       padding: const EdgeInsets.all(AppConstants.paddingSmall),
       itemCount: audiobook.chapters.length,
@@ -409,19 +405,19 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
         final chapter = audiobook.chapters[index];
         final playbackState = ref.watch(audiobookPlayerProvider);
         final isCurrentChapter = playbackState.currentChapter?.id == chapter.id;
-        
+
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: isCurrentChapter 
-                  ? theme.colorScheme.primary 
+              backgroundColor: isCurrentChapter
+                  ? theme.colorScheme.primary
                   : theme.colorScheme.surfaceContainerHighest,
               child: Text(
                 '${index + 1}',
                 style: TextStyle(
-                  color: isCurrentChapter 
-                      ? theme.colorScheme.onPrimary 
+                  color: isCurrentChapter
+                      ? theme.colorScheme.onPrimary
                       : theme.colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                 ),
@@ -479,15 +475,14 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
             style: theme.textTheme.titleLarge,
           ),
           const SizedBox(height: AppConstants.padding),
-          
           if (playbackState.currentAudiobook != null) ...[
             LinearProgressIndicator(
               value: playbackState.progress,
               backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
             ),
             const SizedBox(height: AppConstants.paddingSmall),
-            
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -501,7 +496,6 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
                 ),
               ],
             ),
-            
             if (playbackState.currentChapter != null) ...[
               const SizedBox(height: AppConstants.padding),
               Text(
@@ -514,7 +508,6 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
                 style: theme.textTheme.bodyLarge,
               ),
             ],
-            
             const SizedBox(height: AppConstants.padding),
             Row(
               children: [
@@ -532,7 +525,9 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
                       .toList(),
                   onChanged: (speed) {
                     if (speed != null) {
-                      ref.read(audiobookPlayerProvider.notifier).setPlaybackSpeed(speed);
+                      ref
+                          .read(audiobookPlayerProvider.notifier)
+                          .setPlaybackSpeed(speed);
                     }
                   },
                 ),
@@ -557,3 +552,4 @@ class _AudiobookDetailScreenState extends ConsumerState<AudiobookDetailScreen>
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 }
+

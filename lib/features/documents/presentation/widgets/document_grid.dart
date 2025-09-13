@@ -28,14 +28,20 @@ class DocumentGrid extends StatelessWidget {
     return CustomScrollView(
       controller: scrollController,
       slivers: [
+        // Add top spacing for app bar
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).padding.top,
+          ),
+        ),
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           sliver: SliverGrid(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
               childAspectRatio: 0.75,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) {

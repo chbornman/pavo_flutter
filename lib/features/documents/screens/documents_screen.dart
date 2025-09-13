@@ -4,6 +4,7 @@ import '../domain/entities/document.dart';
 import '../presentation/providers/documents_provider.dart';
 import '../presentation/widgets/document_grid.dart';
 import '../presentation/widgets/document_viewer.dart';
+import '../../photos/presentation/widgets/floating_filter_bar.dart';
 
 class DocumentsScreen extends ConsumerStatefulWidget {
   const DocumentsScreen({super.key});
@@ -14,8 +15,6 @@ class DocumentsScreen extends ConsumerStatefulWidget {
 
 class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
   final ScrollController _scrollController = ScrollController();
-  String _selectedFilter = '';
-  String _selectedSort = 'date_desc';
 
   @override
   void initState() {
@@ -30,34 +29,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      final notifier = ref.read(documentsNotifierProvider.notifier);
-      if (notifier.hasMore) {
-        notifier.loadMore();
-      }
-    }
+    // TODO: Implement pagination if needed
   }
-
-  void _showDocumentViewer(Document document, int index) {
-    final documents = ref.read(documentsNotifierProvider).valueOrNull ?? [];
-    final notifier = ref.read(documentsNotifierProvider.notifier);
-    
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (context) => DocumentViewer(
-          documents: documents,
-          initialIndex: index,
-          getPreviewUrl: notifier.getPreviewUrl,
-          getDownloadUrl: notifier.getDownloadUrl,
-          headers: notifier.authHeaders,
-          onClose: () => Navigator.of(context).pop(),
-        ),
-      ),
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -66,120 +39,17 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Documents'),
-      ),
-      body: Column(
+      body: Stack(
         children: [
-          // Header with document count and filters
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Document count
-                if (documentsAsync.hasValue)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      '${notifier.totalCount} documents',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ),
-                // Filter and sort row
-                Row(
-                  children: [
-                    // Filter dropdown
-                    PopupMenuButton<String>(
-                      onSelected: (value) {
-                        setState(() {
-                          _selectedFilter = value;
-                        });
-                        notifier.setFilter(value.isEmpty ? null : value);
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: '',
-                          child: Text('All Documents'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'year',
-                          child: Text('This Year'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'month',
-                          child: Text('This Month'),
-                        ),
-                      ],
-                      child: Chip(
-                        label: Text(
-                          _selectedFilter.isEmpty 
-                              ? 'All' 
-                              : _selectedFilter == 'year' 
-                                  ? 'This Year' 
-                                  : 'This Month',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        deleteIcon: _selectedFilter.isNotEmpty 
-                            ? const Icon(Icons.close, size: 16) 
-                            : null,
-                        onDeleted: _selectedFilter.isNotEmpty
-                            ? () {
-                                setState(() {
-                                  _selectedFilter = '';
-                                });
-                                notifier.setFilter(null);
-                              }
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Sort dropdown
-                    PopupMenuButton<String>(
-                      onSelected: (value) {
-                        setState(() {
-                          _selectedSort = value;
-                        });
-                        notifier.setSortBy(value);
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'date_desc',
-                          child: Text('Newest'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'date_asc',
-                          child: Text('Oldest'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'name_asc',
-                          child: Text('Name'),
-                        ),
-                      ],
-                      child: Chip(
-                        label: Text(
-                          _selectedSort == 'date_desc' 
-                              ? 'Newest' 
-                              : _selectedSort == 'date_asc' 
-                                  ? 'Oldest' 
-                                  : 'Name',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
           // Main content
-          Expanded(
-            child: documentsAsync.when(
-              data: (documents) {
-                if (documents.isEmpty) {
-                  return Center(
+          documentsAsync.when(
+            data: (documents) {
+              if (documents.isEmpty) {
+                 return Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top,
+                  ),
+                  child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -197,32 +67,37 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Documents will appear here once added to Paperless',
+                          'Documents you add will appear here',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
                     ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: notifier.refresh,
-                  child: DocumentGrid(
-                    documents: documents,
-                    headers: notifier.authHeaders,
-                    getThumbnailUrl: notifier.getThumbnailUrl,
-                    onDocumentTap: _showDocumentViewer,
-                    scrollController: _scrollController,
-                    isLoading: documentsAsync.isLoading,
                   ),
                 );
-              },
-              loading: () => const Center(
-                child: CircularProgressIndicator(),
+              }
+
+              return RefreshIndicator(
+                onRefresh: notifier.refresh,
+                child: DocumentGrid(
+                  documents: documents,
+                  headers: notifier.authHeaders,
+                  getThumbnailUrl: notifier.getThumbnailUrl,
+                  onDocumentTap: _showDocumentViewer,
+                  scrollController: _scrollController,
+                  isLoading: documentsAsync.isLoading,
+                ),
+              );
+            },
+            loading: () => const Center(
+              child: CircularProgressIndicator(),
+            ),
+             error: (error, stack) => Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
               ),
-              error: (error, stack) => Center(
+              child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -234,7 +109,9 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'Failed to load documents',
-                      style: theme.textTheme.titleLarge,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -255,8 +132,29 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
               ),
             ),
           ),
+
+          // Floating filter bar
+          const FloatingFilterBar(screenType: ScreenType.documents),
         ],
       ),
     );
+  }
+
+  void _showDocumentViewer(Document document, int index) {
+    final documentsAsync = ref.watch(documentsNotifierProvider);
+    documentsAsync.whenData((documents) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => DocumentViewer(
+            documents: documents,
+            initialIndex: index,
+            getPreviewUrl: ref.read(documentsNotifierProvider.notifier).getPreviewUrl,
+            getDownloadUrl: ref.read(documentsNotifierProvider.notifier).getDownloadUrl,
+            headers: ref.read(documentsNotifierProvider.notifier).authHeaders,
+            onClose: () => Navigator.of(context).pop(),
+          ),
+        ),
+      );
+    });
   }
 }

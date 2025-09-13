@@ -12,7 +12,7 @@ AudiobooksRepository audiobooksRepository(AudiobooksRepositoryRef ref) {
   return AudiobooksRepositoryImpl(AudiobookshelfService());
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AudiobooksList extends _$AudiobooksList with LogMixin {
   @override
   Future<List<AudiobookEntity>> build({
@@ -55,7 +55,7 @@ class AudiobooksList extends _$AudiobooksList with LogMixin {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class InProgressAudiobooks extends _$InProgressAudiobooks with LogMixin {
   @override
   Future<List<AudiobookEntity>> build() async {

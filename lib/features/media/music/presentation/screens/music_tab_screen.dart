@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/constants/app_constants.dart';
+import '../../../../../features/photos/presentation/widgets/floating_filter_bar.dart';
 import '../providers/music_library_provider.dart';
-import '../providers/music_player_provider.dart';
 import '../widgets/artist_card.dart';
-import '../widgets/music_search_bar.dart';
-import '../widgets/now_playing_card.dart';
 import 'artist_detail_screen.dart';
 
 class MusicTabScreen extends ConsumerStatefulWidget {
@@ -22,41 +20,13 @@ class _MusicTabScreenState extends ConsumerState<MusicTabScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final artistsAsync = ref.watch(musicArtistsProvider);
-    final playbackState = ref.watch(musicPlayerProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(AppConstants.padding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Music',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.padding),
-                  
-                  // Search bar
-                  MusicSearchBar(
-                    onChanged: (query) {
-                      setState(() {
-                        _searchQuery = query;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            
-            // Content
-            Expanded(
-              child: artistsAsync.when(
+      body: Stack(
+        children: [
+           SafeArea(
+             top: false,
+             child: artistsAsync.when(
                 data: (artists) {
                   // Filter artists based on search
                   final filteredArtists = _searchQuery.isEmpty
@@ -90,34 +60,22 @@ class _MusicTabScreenState extends ConsumerState<MusicTabScreen> {
 
                   return CustomScrollView(
                     slivers: [
-                      // Now Playing Card (if music is playing)
-                      if (playbackState.currentTrack != null)
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppConstants.padding,
-                              vertical: AppConstants.paddingSmall,
-                            ),
-                            child: NowPlayingCard(
-                              track: playbackState.currentTrack!,
-                              isPlaying: playbackState.isPlaying,
-                              onTap: () {
-                                // TODO: Navigate to full screen player
-                              },
-                            ),
-                          ),
+                      // Add top spacing for app bar
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: MediaQuery.of(context).padding.top,
                         ),
-                      
+                      ),
                       // Artists Grid
-                      SliverPadding(
-                        padding: const EdgeInsets.all(AppConstants.padding),
-                        sliver: SliverGrid(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 1.0,
-                            crossAxisSpacing: AppConstants.padding,
-                            mainAxisSpacing: AppConstants.padding,
-                          ),
+                       SliverPadding(
+                         padding: const EdgeInsets.all(8),
+                         sliver: SliverGrid(
+                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                             crossAxisCount: 2,
+                             childAspectRatio: 1.0,
+                             crossAxisSpacing: 8,
+                             mainAxisSpacing: 8,
+                           ),
                           delegate: SliverChildBuilderDelegate(
                             (context, index) {
                               final artist = filteredArtists[index];
@@ -170,8 +128,8 @@ class _MusicTabScreenState extends ConsumerState<MusicTabScreen> {
                 ),
               ),
             ),
-          ],
-        ),
+          const FloatingFilterBar(screenType: ScreenType.music),
+        ],
       ),
     );
   }

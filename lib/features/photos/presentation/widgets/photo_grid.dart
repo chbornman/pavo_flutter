@@ -42,6 +42,12 @@ class _PhotoGridState extends ConsumerState<PhotoGrid> with AutomaticKeepAliveCl
       controller: widget.scrollController,
       cacheExtent: 500, // Reduce cache extent to save memory
       slivers: [
+        // Add top spacing for app bar
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).padding.top,
+          ),
+        ),
         // Photo grid
         SliverPadding(
           padding: const EdgeInsets.all(8),

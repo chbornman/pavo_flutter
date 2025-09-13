@@ -10,7 +10,7 @@ JellyfinService jellyfinService(JellyfinServiceRef ref) {
   return JellyfinService();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<MediaItem>> movies(MoviesRef ref) async {
   final service = ref.watch(jellyfinServiceProvider);
   return service.getMovies();

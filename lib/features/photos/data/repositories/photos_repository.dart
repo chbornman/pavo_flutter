@@ -3,6 +3,7 @@ import '../../../../core/cache/cache_manager.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../../core/models/pagination.dart';
 import '../../domain/entities/photo_entity.dart';
+import '../../presentation/providers/photos_provider.dart';
 import '../services/immich_service.dart';
 
 /// Repository pattern implementation for photos
@@ -30,12 +31,12 @@ class PhotosRepository {
   /// Implements the same caching strategy as Pavo web
   Future<PaginatedResponse<PhotoEntity>> getPhotos({
     required PaginationParams params,
-    PhotoType? type,
+    PhotoFilters? filters,
     bool forceRefresh = false,
   }) async {
     // Generate cache key based on parameters
-    final cacheKey = _generateCacheKey(params, type);
-    
+    final cacheKey = _generateCacheKey(params, filters);
+
     // Check cache first unless force refresh
     if (!forceRefresh) {
       final cachedData = _cacheManager.get<Map<String, dynamic>>(cacheKey);
@@ -50,33 +51,33 @@ class PhotosRepository {
       _logger.debug('Fetching photos from service');
       final response = await _immichService.fetchAssets(
         params: params,
-        type: type,
+        filters: filters,
       );
 
       // Cache the successful response
       await _cacheResponse(cacheKey, response);
-      
+
       // Prefetch next page in background only if we have less than max cached pages
       if (response.hasMore && params.page < _maxCachedPages) {
-        _prefetchNextPage(params, type);
+        _prefetchNextPage(params, filters);
       }
 
       return response;
     } on ApiException catch (e) {
       _logger.error('API error fetching photos', error: e);
-      
+
       // Try to return cached data on error
       final cachedData = _cacheManager.get<Map<String, dynamic>>(cacheKey);
       if (cachedData != null) {
         _logger.warning('Returning stale cache due to API error');
         return _parseCachedResponse(cachedData);
       }
-      
+
       // If no cache, propagate the error
       rethrow;
     } catch (e, stackTrace) {
-      _logger.error('Unexpected error fetching photos', 
-        error: e, 
+      _logger.error('Unexpected error fetching photos',
+        error: e,
         stackTrace: stackTrace
       );
       throw ApiException(
@@ -206,10 +207,10 @@ class PhotosRepository {
   }
 
   /// Prefetch next page in background (like Pavo web)
-  void _prefetchNextPage(PaginationParams params, PhotoType? type) {
+  void _prefetchNextPage(PaginationParams params, PhotoFilters? filters) {
     final nextParams = params.copyWith(page: params.page + 1);
-    final cacheKey = _generateCacheKey(nextParams, type);
-    
+    final cacheKey = _generateCacheKey(nextParams, filters);
+
     // Check if already cached
     if (_cacheManager.contains(cacheKey)) {
       return;
@@ -218,7 +219,7 @@ class PhotosRepository {
     // Prefetch in background without awaiting
     _immichService.fetchAssets(
       params: nextParams,
-      type: type,
+      filters: filters,
     ).then((response) {
       _cacheResponse(cacheKey, response);
       _logger.debug('Prefetched page ${nextParams.page}');
@@ -228,9 +229,31 @@ class PhotosRepository {
   }
 
   /// Generate cache key from parameters
-  String _generateCacheKey(PaginationParams params, PhotoType? type) {
-    final typeStr = type?.toString() ?? 'all';
-    return '${_cacheKeyPrefix}${typeStr}_p${params.page}_l${params.limit}_${params.sortBy ?? 'default'}_${params.filter ?? ''}';
+  String _generateCacheKey(PaginationParams params, PhotoFilters? filters) {
+    final filterStr = filters != null ? _filtersToString(filters) : 'all';
+    return '${_cacheKeyPrefix}${filterStr}_p${params.page}_l${params.limit}_${params.sortBy ?? 'default'}';
+  }
+
+  /// Convert filters to string for cache key
+  String _filtersToString(PhotoFilters filters) {
+    final parts = <String>[];
+    if (filters.mediaType != null) parts.add('type:${filters.mediaType}');
+    if (filters.isFavorite != null) parts.add('fav:${filters.isFavorite}');
+    if (filters.isArchived != null) parts.add('arch:${filters.isArchived}');
+    if (filters.isNotInAlbum != null) parts.add('notin:${filters.isNotInAlbum}');
+    if (filters.dateFrom != null) parts.add('from:${filters.dateFrom!.toIso8601String()}');
+    if (filters.dateTo != null) parts.add('to:${filters.dateTo!.toIso8601String()}');
+    if (filters.country != null) parts.add('country:${filters.country}');
+    if (filters.state != null) parts.add('state:${filters.state}');
+    if (filters.city != null) parts.add('city:${filters.city}');
+    if (filters.cameraMake != null) parts.add('make:${filters.cameraMake}');
+    if (filters.cameraModel != null) parts.add('model:${filters.cameraModel}');
+    if (filters.people?.isNotEmpty ?? false) parts.add('people:${filters.people!.join(",")}');
+    if (filters.context?.isNotEmpty ?? false) parts.add('ctx:${filters.context}');
+    if (filters.filename?.isNotEmpty ?? false) parts.add('file:${filters.filename}');
+    if (filters.description?.isNotEmpty ?? false) parts.add('desc:${filters.description}');
+    if (filters.searchQuery?.isNotEmpty ?? false) parts.add('query:${filters.searchQuery}');
+    return parts.isEmpty ? 'all' : parts.join('_');
   }
 
   /// Cache a response
