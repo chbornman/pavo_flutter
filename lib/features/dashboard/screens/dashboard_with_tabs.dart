@@ -172,6 +172,7 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        toolbarHeight: 48, // Reduce height from default 56
         title: SizedBox(
           width: 180, // More compact width for navigation
           child: _DynamicTabBar(
@@ -182,7 +183,7 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
         centerTitle: true,
         leading: const Padding(
           padding: EdgeInsets.only(left: 12.0),
-          child: PavoLogoSmall(size: 32),
+          child: PavoLogoSmall(size: 24), // Smaller logo for compact app bar
         ),
         leadingWidth: 56,
         actions: [
