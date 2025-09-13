@@ -69,11 +69,7 @@ class CustomUserButton extends ConsumerWidget {
                 value: 'profile',
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.person_outline, 
-                      size: 20,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                    const Icon(Icons.person_outline, size: 20),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,17 +79,14 @@ class CustomUserButton extends ConsumerWidget {
                           '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim().isEmpty 
                               ? user.username ?? 'User'
                               : '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         if (user.emailAddresses?.isNotEmpty == true)
                           Text(
                             user.emailAddresses!.first.emailAddress,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
                             ),
                           ),
                       ],
@@ -117,38 +110,20 @@ class CustomUserButton extends ConsumerWidget {
               PopupMenuItem<String>(
                 value: 'account',
                 child: Row(
-                  children: [
-                    Icon(
-                      Icons.manage_accounts_outlined, 
-                      size: 20,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Manage Account',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
+                  children: const [
+                    Icon(Icons.manage_accounts_outlined, size: 20),
+                    SizedBox(width: 12),
+                    Text('Manage Account'),
                   ],
                 ),
               ),
               PopupMenuItem<String>(
                 value: 'settings',
                 child: Row(
-                  children: [
-                    Icon(
-                      Icons.settings_outlined, 
-                      size: 20,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Settings',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
+                  children: const [
+                    Icon(Icons.settings_outlined, size: 20),
+                    SizedBox(width: 12),
+                    Text('Settings'),
                   ],
                 ),
               ),
