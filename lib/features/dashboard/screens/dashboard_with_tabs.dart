@@ -4,8 +4,7 @@ import 'package:pavo_flutter/core/theme/theme_provider.dart';
 import 'package:pavo_flutter/features/auth/widgets/custom_user_button.dart';
 import 'package:pavo_flutter/features/photos/screens/photos_screen.dart';
 import 'package:pavo_flutter/features/documents/screens/documents_screen.dart';
-import 'package:pavo_flutter/features/media/movies/screens/movies_screen.dart';
-import 'package:pavo_flutter/features/media/tv_shows/screens/tv_shows_screen.dart';
+import 'package:pavo_flutter/features/media/screens/media_screen.dart';
 import 'package:pavo_flutter/features/media/music/screens/music_screen.dart';
 import 'package:pavo_flutter/features/media/audiobooks/screens/audiobooks_screen.dart';
 import 'package:pavo_flutter/shared/widgets/pavo_logo.dart';
@@ -23,8 +22,7 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs> {
   final List<Widget> _screens = const [
     PhotosScreen(),
     DocumentsScreen(),
-    MoviesScreen(),
-    TVShowsScreen(),
+    MediaScreen(),
     MusicScreen(),
     AudiobooksScreen(),
   ];
@@ -82,13 +80,8 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs> {
             label: '',
           ),
           NavigationDestination(
-            icon: Icon(Icons.movie_outlined),
-            selectedIcon: Icon(Icons.movie),
-            label: '',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.tv_outlined),
-            selectedIcon: Icon(Icons.tv),
+            icon: Icon(Icons.movie_creation_outlined),
+            selectedIcon: Icon(Icons.movie_creation),
             label: '',
           ),
           NavigationDestination(

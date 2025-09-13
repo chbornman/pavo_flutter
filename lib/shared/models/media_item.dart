@@ -1,11 +1,29 @@
 enum MediaType { movie, tvShow, music, audiobook }
 
+class UserData {
+  final double? playedPercentage;
+  final bool? played;
+
+  UserData({
+    this.playedPercentage,
+    this.played,
+  });
+
+  factory UserData.fromJson(Map<String, dynamic> json) {
+    return UserData(
+      playedPercentage: json['PlayedPercentage']?.toDouble(),
+      played: json['Played'] as bool?,
+    );
+  }
+}
+
 class MediaItem {
   final String id;
   final String name;
   final MediaType type;
   final String? overview;
   final DateTime? premiereDate;
+  final DateTime? endDate;
   final int? runtime;
   final String? imagePath;
   final double? rating;
@@ -13,6 +31,7 @@ class MediaItem {
   final String? artist;
   final String? album;
   final int? trackNumber;
+  final UserData? userData;
 
   MediaItem({
     required this.id,
@@ -20,6 +39,7 @@ class MediaItem {
     required this.type,
     this.overview,
     this.premiereDate,
+    this.endDate,
     this.runtime,
     this.imagePath,
     this.rating,
@@ -27,6 +47,7 @@ class MediaItem {
     this.artist,
     this.album,
     this.trackNumber,
+    this.userData,
   });
 
   factory MediaItem.fromJson(Map<String, dynamic> json) {
@@ -56,6 +77,9 @@ class MediaItem {
       premiereDate: json['PremiereDate'] != null 
           ? DateTime.parse(json['PremiereDate']) 
           : null,
+      endDate: json['EndDate'] != null 
+          ? DateTime.parse(json['EndDate']) 
+          : null,
       runtime: json['RunTimeTicks'] != null 
           ? (json['RunTimeTicks'] / 10000000).round() 
           : null,
@@ -65,6 +89,9 @@ class MediaItem {
       artist: json['AlbumArtist'] ?? json['Artists']?.first,
       album: json['Album'],
       trackNumber: json['IndexNumber'],
+      userData: json['UserData'] != null 
+          ? UserData.fromJson(json['UserData'])
+          : null,
     );
   }
 }
