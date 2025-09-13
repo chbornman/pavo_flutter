@@ -172,13 +172,6 @@ class _DashboardWithTabsState extends ConsumerState<DashboardWithTabs>
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28), // Pill shape for app bar only
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-            width: 1,
-          ),
-        ),
         title: SizedBox(
           width: 180, // More compact width for navigation
           child: _DynamicTabBar(
